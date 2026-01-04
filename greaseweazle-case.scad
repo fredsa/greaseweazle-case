@@ -1,11 +1,23 @@
+// Assembled case.
 case=[100.8, 54.4, 14.5];
 casebottomheight=12.4;
+
+// Wall thickness, bottom and sides.
 wall=2;
+
+// Wall thickness, lid.
 walltop=2.6;
+
+// Tiny delta to fix `difference()` for aligned geometry.
 delta=.01;
+
+// Material to remove for adjacent interlocking geometry.
 overlapgap=.01;
 
+// Ledge height above bottom wall.
 ledgeheight=2;
+
+// Ledge thickness from side walls.
 ledgethick=1;
 
 // PCB without components.
@@ -14,6 +26,7 @@ pcbpos=[wall, wall, wall+ledgeheight];
 
 pcbtolidheight=casebottomheight-wall-ledgeheight-pcbdim.z;
 
+// Top/bottom case interlocking rail dimension.
 rail=[1, case.y-2*wall, 2];
 railheight=wall+ledgeheight+pcbdim.z+pcbtolidheight/2;
 railthickness=sqrt(2)/2;
@@ -24,31 +37,38 @@ usbcextraplugclearance=1;
 usbcdim=[10+2*usbcextraplugclearance, 7.5+wall, 3.5+usbcextraheight];
 usbcpos=[15.7-usbcextraplugclearance, 1+wall, 0];
 
+// Disk drive Berg power connector.
+powerdim=[10, 10, 5]; // Plastic dimensions.
+powerpos=[15, 0, 0]; // Relative to PCB.
+
 // IDE connector.
 ideextraheight=5;
 idedim=[50.8, 9+wall, 9+ideextraheight]; // Plastic dimensions.
 idepos=[29, -1-wall, 0]; // Relative to PCB.
 
-powerdim=[10, 10, 5]; // Plastic dimensions.
-powerpos=[15, 0, 0]; // Relative to PCB.
-
+// IDE connector pin 1 indicator
 idepin1dim=[3, 18, idedim.z+ideextraheight];
 idepin1pos=idepos + [43.4, 0, 0];
 
+// USB 5V enable jumper.
 usb5venableextraheight=5;
 usb5venablepos=[wall+delta, 21, 0];
 usb5venabledim=[17-wall, 5, 12+usb5venableextraheight];
 
+// Jumper block.
 jumpersextraheight=5;
 jumperspos=[29, 23, 0];
 jumpersdim=[18, 15, 12+jumpersextraheight];
 
+// Power and activity LEDs.
 ledsextraheight=10;
 ledspos=[38, 42, 0];
 ledsdim=[6, 9, 1+ledsextraheight];
 
 
 // ------------------------------------
+
+// Model.
 top_and_bottom();
 
 module top_and_bottom() {    
