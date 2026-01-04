@@ -14,9 +14,8 @@ ledgeheight=2;
 ledgethick=1;
 
 // PCB without components.
-pcbdim=[95.25, 50, 1.65];
+pcbdim=[95.25, 50, 1.75];
 pcbpos=[wall, wall, wall+ledgeheight];
-
 
 // Assembled case.
 case=[pcbdim.x+2*wall, pcbdim.y+2*wall, 14.5];
@@ -79,7 +78,7 @@ module model(assembled) {
     if (assembled) {
         bottom();
         top();
-    } else {        
+    } else {
         // Top.
         translate([0, 3, 0])
             bottom();

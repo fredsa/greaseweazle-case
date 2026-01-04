@@ -13,6 +13,8 @@ Inspired by [Greaseweazle v4.1 Slimline Case
 
 1. Open `greaseweazle-case.scad`
 
+1. Press F6 to render the model
+
 1. File > Export > Export as STL…
 
 1. Use your slicer and 3D printer to print the case
