@@ -20,8 +20,9 @@ railthickness=sqrt(2)/2;
 
 // USB-C cut-out.
 usbcextraheight=pcbtolidheight-3.5;
-usbcdim=[10, 7.5+wall, 3.5+usbcextraheight];
-usbcpos=[15.7, 1+wall, 0];
+usbcextraplugclearance=1;
+usbcdim=[10+2*usbcextraplugclearance, 7.5+wall, 3.5+usbcextraheight];
+usbcpos=[15.7-usbcextraplugclearance, 1+wall, 0];
 
 // IDE connector.
 ideextraheight=5;
