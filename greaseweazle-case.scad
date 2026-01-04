@@ -37,10 +37,6 @@ usbcextraplugclearance=1;
 usbcdim=[10+2*usbcextraplugclearance, 7.5+wall, 3.5+usbcextraheight];
 usbcpos=[15.7-usbcextraplugclearance, 1+wall, 0];
 
-// Disk drive Berg power connector.
-powerdim=[10, 10, 5]; // Plastic dimensions.
-powerpos=[15, 0, 0]; // Relative to PCB.
-
 // IDE connector.
 ideextraheight=5;
 idedim=[50.8, 9+wall, 9+ideextraheight]; // Plastic dimensions.
@@ -50,6 +46,12 @@ idepos=[29, -1-wall, 0]; // Relative to PCB.
 idepin1size=2;
 idepin1arrow=[[0, 0], [idepin1size, 0], [0, idepin1size]];
 idepin1pos=idepos + [43.4+idepin1size*sqrt(2)/2, 16, 0];
+
+// Disk drive Berg power connector.
+bergextrax=4+delta;
+bergextraheight=10;
+bergdim=[10+bergextrax, 10+wall-delta, 5+bergextraheight]; // Plastic dimensions.
+bergpos=[15, 0-wall-delta, 0]; // Relative to PCB.
 
 // USB 5V enable jumper.
 usb5venableextraheight=5;
@@ -93,6 +95,7 @@ module top() {
 module top_subtractions() {
     ide();
     idepin1();
+    berg();
     usb5venable();
     jumpers();
     leds();
@@ -186,6 +189,7 @@ module bottom_subtractions() {
     rails();
     usbc();
     ide();
+    berg();
 }
 
 module usbc() {
@@ -207,6 +211,12 @@ module ide() {
     translate(pcbpos)
     translate(idepos)
         cube(idedim);
+}
+
+module berg() {
+    translate(pcbpos)
+    translate(bergpos)
+        cube(bergdim);
 }
 
 module rails() {
