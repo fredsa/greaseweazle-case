@@ -1,9 +1,6 @@
 // Wall thickness, bottom and sides.
 wall=2;
 
-// Wall thickness, lid.
-walltop=2.6;
-
 // Tiny delta to fix `difference()` for aligned geometry.
 delta=.01;
 
@@ -23,7 +20,7 @@ pcbpos=[wall, wall, wall+ledgeheight];
 
 // Assembled case.
 case=[pcbdim.x+2*wall, pcbdim.y+2*wall, 14.5];
-casebottomheight=12.4;
+casebottomheight=case.z-wall;
 
 pcbtolidheight=casebottomheight-wall-ledgeheight-pcbdim.z;
 
