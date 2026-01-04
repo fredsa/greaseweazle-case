@@ -1,7 +1,3 @@
-// Assembled case.
-case=[100.8, 54.4, 14.5];
-casebottomheight=12.4;
-
 // Wall thickness, bottom and sides.
 wall=2;
 
@@ -24,6 +20,11 @@ ledgethick=1;
 pcbdim=[95.25, 50, 1.65];
 pcbpos=[wall, wall, wall+ledgeheight];
 
+
+// Assembled case.
+case=[pcbdim.x+2*wall, pcbdim.y+2*wall, 14.5];
+casebottomheight=12.4;
+
 pcbtolidheight=casebottomheight-wall-ledgeheight-pcbdim.z;
 
 // Top/bottom case interlocking rail dimension.
@@ -34,8 +35,11 @@ railthickness=sqrt(2)/2;
 // USB-C cut-out.
 usbcextraheight=pcbtolidheight-3.5;
 usbcextraplugclearance=1;
+usbcprotrude=1;
 usbcdim=[10+2*usbcextraplugclearance, 7.5+wall, 3.5+usbcextraheight];
-usbcpos=[15.7-usbcextraplugclearance, 1+wall, 0];
+usbcpos=[15.7-usbcextraplugclearance, usbcprotrude+wall, 0];
+usbcabovedim=[usbcdim.x, wall*2, usbcextraheight+delta];
+usbcabovepos=[usbcpos.x, pcbdim.y-usbcabovedim.y+wall, pcbtolidheight-usbcabovedim.z+pcbdim.z+delta];
 
 // IDE connector.
 ideextraheight=5;
@@ -72,17 +76,22 @@ ledsdim=[6, 9, 1+ledsextraheight];
 // ------------------------------------
 
 // Model.
-top_and_bottom();
+model(assembled=false);
 
-module top_and_bottom() {
-    // Top.
-    translate([0, 3, 0])
+module model(assembled) {
+    if (assembled) {
         bottom();
-
-    // Bottom, flipped over.
-    translate([0, 0, case.z])
-    rotate([180, 0, 0])
         top();
+    } else {        
+        // Top.
+        translate([0, 3, 0])
+            bottom();
+
+        // Bottom, flipped over.
+        translate([0, 0, case.z])
+        rotate([180, 0, 0])
+            top();
+    }
 }
 
 module top() {
@@ -136,6 +145,7 @@ module top_side() {
 module top_basic() {
     top_lid();
     top_sides();
+    usbcabove();
 
     // Left rail.
     translate([wall-railthickness, wall, railheight])
@@ -197,6 +207,12 @@ module usbc() {
     translate(pcbpos)
     translate(usbcpos)
         cube(usbcdim);
+}
+
+module usbcabove() {
+    translate(pcbpos)
+    translate(usbcabovepos)
+        cube(usbcabovedim);
 }
 
 module idepin1() {
