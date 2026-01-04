@@ -36,28 +36,29 @@ idepin1dim=[3, 18, idedim.z+ideextraheight];
 idepin1pos=idepos + [43.4, 0, 0];
 
 usb5venableextraheight=5;
-usb5venablepos=[wall+delta,21,0];
-usb5venabledim=[17-wall,5,12+usb5venableextraheight];
+usb5venablepos=[wall+delta, 21, 0];
+usb5venabledim=[17-wall, 5, 12+usb5venableextraheight];
 
 jumpersextraheight=5;
-jumperspos=[29,23,0];
-jumpersdim=[18,15,12+jumpersextraheight];
+jumperspos=[29, 23, 0];
+jumpersdim=[18, 15, 12+jumpersextraheight];
 
 ledsextraheight=10;
-ledspos=[38,42,0];
-ledsdim=[6,9,1+ledsextraheight];
+ledspos=[38, 42, 0];
+ledsdim=[6, 9, 1+ledsextraheight];
 
 
 // ------------------------------------
 top_and_bottom();
 
 module top_and_bottom() {    
-translate([0, 3, 0])
-    bottom();
+    translate([0, 3, 0])
+        bottom();
 
-translate([0,0,case.z])
-rotate([180,0,0])
-    top();
+    translate([0, 0, case.z])
+    rotate([180, 0, 0])
+        top();
+}
 
 module top() {
     difference() {
@@ -112,12 +113,12 @@ module top_basic() {
 
     // Left rail.
     translate([wall-railthickness, wall, railheight])
-    rotate([0,-45,0])
+    rotate([0, -45, 0])
         railseed();
 
     // Right rail.
     translate([case.x-2*railthickness, wall, railheight])
-    rotate([0,135,0])
+    rotate([0, 135, 0])
         railseed();
 }
 
@@ -125,29 +126,29 @@ module top_lid() {
     difference() {
         hollowcase();
         // Remove bottom.
-        translate([-delta,-delta,-delta])
-            cube([case.x + 2*delta,
-                  case.y + 2*delta,
+        translate([-delta, -delta, -delta])
+            cube([case.x + 2*delta, 
+                  case.y + 2*delta, 
                   casebottomheight + 2*delta]);
     }
 }
 
 module ledge() {
     // Left.
-    translate([wall,wall,wall])
-        cube([ledgethick,case.y-2*wall,ledgeheight]);
+    translate([wall, wall, wall])
+        cube([ledgethick, case.y-2*wall, ledgeheight]);
 
     // Right.
-    translate([case.x-wall-ledgethick,wall,wall])
-        cube([ledgethick,case.y-2*wall,ledgeheight]);
+    translate([case.x-wall-ledgethick, wall, wall])
+        cube([ledgethick, case.y-2*wall, ledgeheight]);
 
     // Front.
-    translate([wall,wall,wall])
-        cube([case.x-2*wall,ledgethick,ledgeheight]);
+    translate([wall, wall, wall])
+        cube([case.x-2*wall, ledgethick, ledgeheight]);
 
     // Back.
-    translate([wall,case.y-wall-ledgethick,wall])
-        cube([case.x-2*wall,ledgethick,ledgeheight]);
+    translate([wall, case.y-wall-ledgethick, wall])
+        cube([case.x-2*wall, ledgethick, ledgeheight]);
 }
 
 module bottom() {
@@ -165,7 +166,7 @@ module bottom_subtractions() {
 }
 
 module usbc() {
-    translate([0,pcbdim.y-usbcdim.y,pcbdim.z])
+    translate([0, pcbdim.y-usbcdim.y, pcbdim.z])
     translate(pcbpos)
     translate(usbcpos)
         cube(usbcdim);
@@ -185,32 +186,32 @@ module ide() {
 
 module rails() {
     // Left.
-    translate([wall-railthickness,wall,railheight])
-    rotate([0,-45,0])
+    translate([wall-railthickness, wall, railheight])
+    rotate([0, -45, 0])
         railseed();
     
     // Right;
-    translate([case.x-wall+railthickness,wall,railheight])
-    rotate([0,135,0])
+    translate([case.x-wall+railthickness, wall, railheight])
+    rotate([0, 135, 0])
         railseed();
 }
 
 module railseed() {
-    rotate([-90,0,0])
+    rotate([-90, 0, 0])
     linear_extrude(rail.y)
         offset(overlapgap)
-        polygon(points=[[0,0],[1,0],[0,1]]);
+        polygon(points=[[0, 0], [1, 0], [0, 1]]);
 }
 
 module bottom_basic() {
     difference() {
         hollowcase();
         // Remove top.
-        translate([-delta,
-                   -delta,
+        translate([-delta, 
+                   -delta, 
                    casebottomheight-delta])
-            cube([case.x + 2*delta,
-                  case.y + 2*delta,
+            cube([case.x + 2*delta, 
+                  case.y + 2*delta, 
                   case.z - casebottomheight + 2*delta]);
     }
 }
@@ -219,8 +220,8 @@ module hollowcase() {
   difference() {
     solidcase();
     translate([wall, wall, wall])
-      cube([case.x - 2*wall,
-            case.y - 2*wall,
+      cube([case.x - 2*wall, 
+            case.y - 2*wall, 
             case.z - 2*wall]);
   }
 }
