@@ -47,8 +47,9 @@ idedim=[50.8, 9+wall, 9+ideextraheight]; // Plastic dimensions.
 idepos=[29, -1-wall, 0]; // Relative to PCB.
 
 // IDE connector pin 1 indicator
-idepin1dim=[3, 18, idedim.z+ideextraheight];
-idepin1pos=idepos + [43.4, 0, 0];
+idepin1size=2;
+idepin1arrow=[[0, 0], [idepin1size, 0], [0, idepin1size]];
+idepin1pos=idepos + [43.4+idepin1size*sqrt(2)/2, 16, 0];
 
 // USB 5V enable jumper.
 usb5venableextraheight=5;
@@ -71,10 +72,12 @@ ledsdim=[6, 9, 1+ledsextraheight];
 // Model.
 top_and_bottom();
 
-module top_and_bottom() {    
+module top_and_bottom() {
+    // Top.
     translate([0, 3, 0])
         bottom();
 
+    // Bottom, flipped over.
     translate([0, 0, case.z])
     rotate([180, 0, 0])
         top();
@@ -117,14 +120,14 @@ module top_sides() {
     // Left.
     translate([wall, wall, case.z-wall-pcbtolidheight])
         top_side();
-    
+
     // Right.
     translate([case.x-2*wall, wall, case.z-wall-pcbtolidheight])
         top_side();
 }
 
 module top_side() {
-    cube([wall, case.y-2*wall, pcbtolidheight]);    
+    cube([wall, case.y-2*wall, pcbtolidheight]);   
 }
 
 module top_basic() {
@@ -147,8 +150,8 @@ module top_lid() {
         hollowcase();
         // Remove bottom.
         translate([-delta, -delta, -delta])
-            cube([case.x + 2*delta, 
-                  case.y + 2*delta, 
+            cube([case.x + 2*delta,
+                  case.y + 2*delta,
                   casebottomheight + 2*delta]);
     }
 }
@@ -195,7 +198,9 @@ module usbc() {
 module idepin1() {
     translate(pcbpos)
     translate(idepin1pos)
-        cube(idepin1dim);
+    rotate([0,0,45])
+        linear_extrude(idedim.z+ideextraheight)
+        polygon(points=idepin1arrow);
 }
 
 module ide() {
@@ -209,7 +214,7 @@ module rails() {
     translate([wall-railthickness, wall, railheight])
     rotate([0, -45, 0])
         railseed();
-    
+
     // Right;
     translate([case.x-wall+railthickness, wall, railheight])
     rotate([0, 135, 0])
@@ -227,11 +232,11 @@ module bottom_basic() {
     difference() {
         hollowcase();
         // Remove top.
-        translate([-delta, 
-                   -delta, 
+        translate([-delta,
+                   -delta,
                    casebottomheight-delta])
-            cube([case.x + 2*delta, 
-                  case.y + 2*delta, 
+            cube([case.x + 2*delta,
+                  case.y + 2*delta,
                   case.z - casebottomheight + 2*delta]);
     }
 }
@@ -240,8 +245,8 @@ module hollowcase() {
   difference() {
     solidcase();
     translate([wall, wall, wall])
-      cube([case.x - 2*wall, 
-            case.y - 2*wall, 
+      cube([case.x - 2*wall,
+            case.y - 2*wall,
             case.z - 2*wall]);
   }
 }
