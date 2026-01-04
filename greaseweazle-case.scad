@@ -47,6 +47,11 @@ ledsextraheight=10;
 ledspos=[38,42,0];
 ledsdim=[6,9,1+ledsextraheight];
 
+
+// ------------------------------------
+top_and_bottom();
+
+module top_and_bottom() {    
 translate([0, 3, 0])
     bottom();
 
