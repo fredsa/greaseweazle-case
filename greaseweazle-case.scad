@@ -50,8 +50,8 @@ idepin1pos=idepos + [43.4+idepin1size*sqrt(2)/2, 16, 0];
 // Disk drive Berg power connector.
 bergextrax=4+delta;
 bergextraheight=10;
-bergdim=[10+bergextrax, 10+wall-delta, 5+bergextraheight]; // Plastic dimensions.
-bergpos=[15, 0-wall-delta, 0]; // Relative to PCB.
+bergdim=[12+bergextrax, 10+wall-delta, 5+bergextraheight]; // Plastic dimensions.
+bergpos=[13, 0-wall-delta, 0]; // Relative to PCB.
 
 // USB 5V enable jumper.
 usb5venableextraheight=5;
