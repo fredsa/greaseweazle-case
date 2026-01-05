@@ -221,12 +221,14 @@ module idepin1() {
 
 module ide() {
     translate(pcbpos)
+    translate([0, 0, pcbdim.z])
     translate(idepos)
         cube(idedim);
 }
 
 module berg() {
     translate(pcbpos)
+    translate([0, 0, pcbdim.z])
     translate(bergpos)
         cube(bergdim);
 }
