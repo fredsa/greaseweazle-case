@@ -55,8 +55,8 @@ bergpos=[15, 0-wall-delta, 0]; // Relative to PCB.
 
 // USB 5V enable jumper.
 usb5venableextraheight=5;
-usb5venablepos=[wall+delta, 21, 0];
-usb5venabledim=[17-wall, 5, 12+usb5venableextraheight];
+usb5venablepos=[wall+delta, 20, 0];
+usb5venabledim=[17-wall, 6, 12+usb5venableextraheight];
 
 // Jumper block.
 jumpersextraheight=5;
