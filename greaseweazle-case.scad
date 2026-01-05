@@ -14,7 +14,7 @@ ledgeheight=2;
 ledgethick=1;
 
 // PCB without components.
-pcbdim=[95.25, 50, 1.8];
+pcbdim=[96, 51, 1.8];
 pcbpos=[wall, wall, wall+ledgeheight];
 
 // Assembled case.
