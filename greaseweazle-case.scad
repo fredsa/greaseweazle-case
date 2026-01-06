@@ -1,3 +1,6 @@
+// Convenience zero vector.
+zero = [0, 0, 0];
+
 // Wall thickness, bottom and sides.
 wall=2;
 
@@ -32,8 +35,10 @@ railthickness=sqrt(2)/2;
 usbcextraheight=pcbtolidheight-3.5;
 usbcextraplugclearance=1;
 usbcprotrude=1;
-usbcdim=[10+2*usbcextraplugclearance, 7.5+wall, 3.5+usbcextraheight];
-usbcpos=[15.7-usbcextraplugclearance, usbcprotrude+wall, 0];
+usbcdim=[10+2*usbcextraplugclearance, 7.5, 3.5];
+usbcdimext=[0, wall, usbcextraheight];
+usbcpos=[15.7-usbcextraplugclearance, 44+usbcprotrude, 0];
+usbcposext=[0, wall, 0];
 usbcabovedim=[usbcdim.x, wall*2, usbcextraheight+delta];
 usbcabovepos=[usbcpos.x, pcbdim.y-usbcabovedim.y+wall, pcbtolidheight-usbcabovedim.z+pcbdim.z+delta];
 
@@ -81,12 +86,37 @@ module model(assembled) {
     } else {
         // Bottom.
         translate([0, 3, 0])
+        union() {
             bottom();
+            %pcb();
+        }
 
         // Top, flipped over.
         translate([0, 0, case.z])
         rotate([180, 0, 0])
             top();
+    }
+}
+
+module pcb() {
+    usbc(false);
+
+    translate(pcbpos)
+    union() {
+        // PCB.
+        cube(pcbdim);
+
+        translate([0, 0, pcbdim.z])
+        union() {
+            translate(bergpos)
+                cube(bergdim - [0, 0 ,bergextraheight]);
+
+            translate(idepos)
+                cube(idedim - [0, 0 ,ideextraheight]);
+
+            translate(usbcpos)
+                cube(usbcdim - [0, 0 ,usbcextraheight]);
+        }
     }
 }
 
@@ -105,7 +135,7 @@ module top_subtractions() {
     usb5venable();
     jumpers();
     leds();
-    usbc();
+    usbc(true);
 }
 
 module usb5venable() {
@@ -193,16 +223,17 @@ module bottom() {
 
 module bottom_subtractions() {
     rails();
-    usbc();
+    usbc(true);
     ide();
     berg();
 }
 
-module usbc() {
-    translate([0, pcbdim.y-usbcdim.y, pcbdim.z-delta])
+module usbc(ext) {
+    translate(ext ? usbcposext : zero)
+    translate([0, 0, pcbdim.z-delta])
     translate(pcbpos)
     translate(usbcpos)
-        cube(usbcdim+[0, 0, delta]);
+        cube(usbcdim + (ext ? usbcdimext : zero) + [0, 0, delta]);
 }
 
 module usbcabove() {
