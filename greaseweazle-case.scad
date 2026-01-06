@@ -114,17 +114,9 @@ module pcb() {
     enable5v(false);
     ide(false);
 
+    // PCB.
     translate(pcbpos)
-    union() {
-        // PCB.
         cube(pcbdim);
-
-        translate([0, 0, pcbdim.z])
-        union() {
-            translate(usbcpos)
-                cube(usbcdim - [0, 0, usbcextraheight]);
-        }
-    }
 }
 
 module top() {
