@@ -79,11 +79,11 @@ module model(assembled) {
         bottom();
         top();
     } else {
-        // Top.
+        // Bottom.
         translate([0, 3, 0])
             bottom();
 
-        // Bottom, flipped over.
+        // Top, flipped over.
         translate([0, 0, case.z])
         rotate([180, 0, 0])
             top();
