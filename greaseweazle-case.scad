@@ -85,25 +85,29 @@ ledsdim=[6, 8, 1+ledsextraheight];
 // ------------------------------------
 
 // Model.
-model(assembled=!true, pcb=true);
+model(
+    assembled=!true,
+    top=true,
+    bottom=true,
+    pcb=true);
 
-module model(assembled, pcb) {
+module model(assembled, top, bottom, pcb) {
     if (assembled) {
-        bottom();
+        if (bottom) { bottom(); }
+        if (top) { top(); }
         if (pcb) { %pcb(); }
-        top();
     } else {
         // Bottom.
         translate([0, 3, 0])
         union() {
-            bottom();
+            if (bottom) { bottom(); }
             if (pcb) { %pcb(); }
         }
 
         // Top, flipped over.
         translate([0, 0, case.z])
         rotate([180, 0, 0])
-            top();
+            if (top) { top(); }
     }
 }
 
