@@ -55,8 +55,10 @@ idepin1pos=idepos + [43.4+idepin1size*sqrt(2)/2, 17, 0];
 // Disk drive Berg power connector.
 bergextrax=4+delta;
 bergextraheight=10;
-bergdim=[12+bergextrax, 11+wall-delta, 5+bergextraheight]; // Plastic dimensions.
+bergdim=[12, 11-delta, 5]; // Plastic dimensions.
+bergdimext=[bergextrax, wall, bergextraheight];
 bergpos=[13, 0-wall-delta, 0]; // Relative to PCB.
+bergposext=[0,0,0];
 
 // USB 5V enable jumper.
 usb5venableextraheight=10;
@@ -79,7 +81,7 @@ ledsdim=[6, 8, 1+ledsextraheight];
 // ------------------------------------
 
 // Model.
-model(assembled=!true, pcb=!true);
+model(assembled=!true, pcb=true);
 
 module model(assembled, pcb) {
     if (assembled) {
@@ -104,7 +106,8 @@ module model(assembled, pcb) {
 module pcb() {
     usbc(false);
     jumpers(false);
-
+    berg(false);
+    
     translate(pcbpos)
     union() {
         // PCB.
@@ -114,9 +117,6 @@ module pcb() {
         union() {
             translate(usb5venablepos)
                 cube(usb5venabledim - [0, 0, usb5venableextraheight]);
-
-            translate(bergpos)
-                cube(bergdim - [0, 0, bergextraheight]);
 
             translate(idepos)
                 cube(idedim - [0, 0, ideextraheight]);
@@ -138,7 +138,7 @@ module top() {
 module top_subtractions() {
     ide();
     idepin1();
-    berg();
+    berg(true);
     usb5venable();
     jumpers(true);
     leds();
@@ -233,7 +233,7 @@ module bottom_subtractions() {
     rails();
     usbc(true);
     ide();
-    berg();
+    berg(true);
 }
 
 module usbc(ext) {
@@ -265,11 +265,12 @@ module ide() {
         cube(idedim);
 }
 
-module berg() {
+module berg(ext) {
     translate(pcbpos)
     translate([0, 0, pcbdim.z])
     translate(bergpos)
-        cube(bergdim);
+    translate(ext ? bergposext : zero)
+        cube(bergdim + (ext ? bergdimext : zero));
 }
 
 module rails() {
