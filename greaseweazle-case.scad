@@ -52,7 +52,7 @@ ideposext=[0, -wall, 0];
 // IDE connector pin 1 indicator
 idepin1size=4;
 idepin1arrow=[[0, 0], [idepin1size, 1], [1, idepin1size]];
-idepin1pos=idepos + [43.4+idepin1size*sqrt(2)/2, 17, 0];
+idepin1pos=idepos + [43.4+idepin1size*sqrt(2)/2, 15, 0];
 
 // Disk drive Berg power connector.
 bergextrax=4+delta;
