@@ -59,14 +59,16 @@ bergdim=[12+bergextrax, 11+wall-delta, 5+bergextraheight]; // Plastic dimensions
 bergpos=[13, 0-wall-delta, 0]; // Relative to PCB.
 
 // USB 5V enable jumper.
-usb5venableextraheight=5;
+usb5venableextraheight=10;
 usb5venablepos=[wall+delta, 20, 0];
-usb5venabledim=[18-wall, 6, 12+usb5venableextraheight];
+usb5venabledim=[18-wall, 6, 9+usb5venableextraheight];
 
 // Jumper block.
 jumpersextraheight=5;
-jumperspos=[29, 22, 0];
-jumpersdim=[18, 17, 12+jumpersextraheight];
+jumperspos=[35, 22, 0];
+jumpersposext=[-6, 0, 0];
+jumpersdim=[6, 17, 12];
+jumpersdimext=[12, 0, jumpersextraheight];
 
 // Power and activity LEDs.
 ledsextraheight=10;
@@ -77,18 +79,19 @@ ledsdim=[6, 8, 1+ledsextraheight];
 // ------------------------------------
 
 // Model.
-model(assembled=false);
+model(assembled=!true, pcb=!true);
 
-module model(assembled) {
+module model(assembled, pcb) {
     if (assembled) {
         bottom();
+        if (pcb) { %pcb(); }
         top();
     } else {
         // Bottom.
         translate([0, 3, 0])
         union() {
             bottom();
-            %pcb();
+            if (pcb) { %pcb(); }
         }
 
         // Top, flipped over.
@@ -100,6 +103,7 @@ module model(assembled) {
 
 module pcb() {
     usbc(false);
+    jumpers(false);
 
     translate(pcbpos)
     union() {
@@ -108,14 +112,17 @@ module pcb() {
 
         translate([0, 0, pcbdim.z])
         union() {
+            translate(usb5venablepos)
+                cube(usb5venabledim - [0, 0, usb5venableextraheight]);
+
             translate(bergpos)
-                cube(bergdim - [0, 0 ,bergextraheight]);
+                cube(bergdim - [0, 0, bergextraheight]);
 
             translate(idepos)
-                cube(idedim - [0, 0 ,ideextraheight]);
+                cube(idedim - [0, 0, ideextraheight]);
 
             translate(usbcpos)
-                cube(usbcdim - [0, 0 ,usbcextraheight]);
+                cube(usbcdim - [0, 0, usbcextraheight]);
         }
     }
 }
@@ -133,7 +140,7 @@ module top_subtractions() {
     idepin1();
     berg();
     usb5venable();
-    jumpers();
+    jumpers(true);
     leds();
     usbc(true);
 }
@@ -144,10 +151,11 @@ module usb5venable() {
         cube(usb5venabledim);
 }
 
-module jumpers() {
+module jumpers(ext) {
     translate(pcbpos)
     translate(jumperspos)
-        cube(jumpersdim);
+    translate(ext ? jumpersposext : zero)
+        cube(jumpersdim + (ext ? jumpersdimext : zero));
 }
 
 module leds() {
@@ -176,7 +184,7 @@ module top_sides() {
         cube([case.x-2*wall, wall, pcbtolidheight]);
 
     // Support bar.
-    translate([wall, idepin1pos.y, case.z-wall-pcbtolidheight])
+    translate([wall, usb5venablepos.y-delta, case.z-wall-pcbtolidheight])
         cube([case.x-2*wall, wall, pcbtolidheight]);
 }
 
