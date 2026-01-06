@@ -24,7 +24,7 @@ casebottomheight=case.z-wall;
 pcbtolidheight=casebottomheight-wall-ledgeheight-pcbdim.z;
 
 // Top/bottom case interlocking rail dimension.
-rail=[1, case.y-2*wall, 2];
+railwidth=1;
 railheight=wall+ledgeheight+pcbdim.z+pcbtolidheight/2;
 railthickness=sqrt(2)/2;
 
@@ -95,6 +95,7 @@ module top() {
         top_basic();
         top_subtractions();
     }
+    usbcabove();
 }
 
 module top_subtractions() {
@@ -104,6 +105,7 @@ module top_subtractions() {
     usb5venable();
     jumpers();
     leds();
+    usbc();
 }
 
 module usb5venable() {
@@ -124,6 +126,12 @@ module leds() {
         cube(ledsdim);
 }
 
+module top_basic() {
+    top_lid();
+    top_sides();
+    rails();
+}
+
 module top_sides() {
     // Left.
     translate([wall, wall, case.z-wall-pcbtolidheight])
@@ -132,26 +140,14 @@ module top_sides() {
     // Right.
     translate([case.x-2*wall, wall, case.z-wall-pcbtolidheight])
         top_side();
+
+    // Back.
+    translate([wall, case.y-2*wall, case.z-wall-pcbtolidheight])
+        cube([case.x-2*wall, wall, pcbtolidheight]);
 }
 
 module top_side() {
     cube([wall, case.y-2*wall, pcbtolidheight]);   
-}
-
-module top_basic() {
-    top_lid();
-    top_sides();
-    usbcabove();
-
-    // Left rail.
-    translate([wall-railthickness, wall, railheight])
-    rotate([0, -45, 0])
-        railseed();
-
-    // Right rail.
-    translate([case.x-2*railthickness, wall, railheight])
-    rotate([0, 135, 0])
-        railseed();
 }
 
 module top_lid() {
@@ -199,10 +195,10 @@ module bottom_subtractions() {
 }
 
 module usbc() {
-    translate([0, pcbdim.y-usbcdim.y, pcbdim.z])
+    translate([0, pcbdim.y-usbcdim.y, pcbdim.z-delta])
     translate(pcbpos)
     translate(usbcpos)
-        cube(usbcdim);
+        cube(usbcdim+[0, 0, delta]);
 }
 
 module usbcabove() {
@@ -237,17 +233,23 @@ module rails() {
     // Left.
     translate([wall-railthickness, wall, railheight])
     rotate([0, -45, 0])
-        railseed();
+        railseed(case.y-2*wall);
 
-    // Right;
+    // Right.
     translate([case.x-wall+railthickness, wall, railheight])
     rotate([0, 135, 0])
-        railseed();
+        railseed(case.y-2*wall);
+
+    // Back.
+    translate([wall, case.y-wall+railthickness, railheight])
+    rotate([0, 0, -90])
+    rotate([0, -45, 0])
+        railseed(case.x-2*wall);
 }
 
-module railseed() {
+module railseed(length) {
     rotate([-90, 0, 0])
-    linear_extrude(rail.y)
+    linear_extrude(length)
         offset(overlapgap)
         polygon(points=[[0, 0], [1, 0], [0, 1]]);
 }
