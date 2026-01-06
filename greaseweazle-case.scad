@@ -65,8 +65,8 @@ usb5venabledim=[18-wall, 6, 12+usb5venableextraheight];
 
 // Jumper block.
 jumpersextraheight=5;
-jumperspos=[29, 23, 0];
-jumpersdim=[18, 15, 12+jumpersextraheight];
+jumperspos=[29, 22, 0];
+jumpersdim=[18, 17, 12+jumpersextraheight];
 
 // Power and activity LEDs.
 ledsextraheight=10;
