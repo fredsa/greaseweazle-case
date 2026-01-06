@@ -44,8 +44,10 @@ usbcabovepos=[usbcpos.x, pcbdim.y-usbcabovedim.y+wall, pcbtolidheight-usbcaboved
 
 // IDE connector.
 ideextraheight=5;
-idedim=[50.8, 9+wall, 9+ideextraheight]; // Plastic dimensions.
-idepos=[29, -1-wall, 0]; // Relative to PCB.
+idedim=[50.8, 9, 9]; // Plastic dimensions.
+idedimext=[0, wall, ideextraheight];
+idepos=[29, -1, 0]; // Relative to PCB.
+ideposext=[0, -wall, 0];
 
 // IDE connector pin 1 indicator
 idepin1size=4;
@@ -110,6 +112,7 @@ module pcb() {
     jumpers(false);
     berg(false);
     enable5v(false);
+    ide(false);
 
     translate(pcbpos)
     union() {
@@ -118,9 +121,6 @@ module pcb() {
 
         translate([0, 0, pcbdim.z])
         union() {
-            translate(idepos)
-                cube(idedim - [0, 0, ideextraheight]);
-
             translate(usbcpos)
                 cube(usbcdim - [0, 0, usbcextraheight]);
         }
@@ -136,7 +136,7 @@ module top() {
 }
 
 module top_subtractions() {
-    ide();
+    ide(true);
     idepin1();
     berg(true);
     enable5v(true);
@@ -233,7 +233,7 @@ module bottom() {
 module bottom_subtractions() {
     rails();
     usbc(true);
-    ide();
+    ide(true);
     berg(true);
 }
 
@@ -259,11 +259,12 @@ module idepin1() {
         polygon(points=idepin1arrow);
 }
 
-module ide() {
+module ide(ext) {
     translate(pcbpos)
     translate([0, 0, pcbdim.z])
     translate(idepos)
-        cube(idedim);
+    translate(ext ? ideposext : zero)
+        cube(idedim + (ext ? idedimext : zero));
 }
 
 module berg(ext) {
