@@ -61,9 +61,11 @@ bergpos=[13, 0-wall-delta, 0]; // Relative to PCB.
 bergposext=[0,0,0];
 
 // USB 5V enable jumper.
-usb5venableextraheight=10;
-usb5venablepos=[wall+delta, 20, 0];
-usb5venabledim=[18-wall, 6, 9+usb5venableextraheight];
+enable5vextraheight=10;
+enable5vdim=[16, 6, 9];
+enable5vdimext=[0, 0, enable5vextraheight];
+enable5vpos=[2+delta, 20, 0];
+enable5vposext=[0, 0, 0];
 
 // Jumper block.
 jumpersextraheight=5;
@@ -107,7 +109,8 @@ module pcb() {
     usbc(false);
     jumpers(false);
     berg(false);
-    
+    enable5v(false);
+
     translate(pcbpos)
     union() {
         // PCB.
@@ -115,9 +118,6 @@ module pcb() {
 
         translate([0, 0, pcbdim.z])
         union() {
-            translate(usb5venablepos)
-                cube(usb5venabledim - [0, 0, usb5venableextraheight]);
-
             translate(idepos)
                 cube(idedim - [0, 0, ideextraheight]);
 
@@ -139,16 +139,17 @@ module top_subtractions() {
     ide();
     idepin1();
     berg(true);
-    usb5venable();
+    enable5v(true);
     jumpers(true);
     leds();
     usbc(true);
 }
 
-module usb5venable() {
+module enable5v(ext) {
     translate(pcbpos)
-    translate(usb5venablepos)
-        cube(usb5venabledim);
+    translate(enable5vpos)
+    translate(ext ? enable5vposext : zero)
+        cube(enable5vdim + (ext ? enable5vdimext : zero));
 }
 
 module jumpers(ext) {
@@ -184,7 +185,7 @@ module top_sides() {
         cube([case.x-2*wall, wall, pcbtolidheight]);
 
     // Support bar.
-    translate([wall, usb5venablepos.y-delta, case.z-wall-pcbtolidheight])
+    translate([wall, enable5vpos.y-delta, case.z-wall-pcbtolidheight])
         cube([case.x-2*wall, wall, pcbtolidheight]);
 }
 
