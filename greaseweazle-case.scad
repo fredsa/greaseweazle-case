@@ -144,6 +144,10 @@ module top_sides() {
     // Back.
     translate([wall, case.y-2*wall, case.z-wall-pcbtolidheight])
         cube([case.x-2*wall, wall, pcbtolidheight]);
+
+    // Support bar.
+    translate([wall, idepin1pos.y, case.z-wall-pcbtolidheight])
+        cube([case.x-2*wall, wall, pcbtolidheight]);
 }
 
 module top_side() {
