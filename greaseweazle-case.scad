@@ -67,9 +67,9 @@ bergposext=[0,0,0];
 
 // USB 5V enable jumper.
 enable5vextraheight=10;
-enable5vdim=[16, 6, 9];
+enable5vdim=[16, 6.5, 9];
 enable5vdimext=[0, 0, enable5vextraheight];
-enable5vpos=[2+delta, 20, 0];
+enable5vpos=[2+delta, 19.5, 0];
 enable5vposext=[0, 0, 0];
 
 // Jumper block.
