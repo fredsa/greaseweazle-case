@@ -135,13 +135,13 @@ module top() {
 }
 
 module top_subtractions() {
-    ide(true);
+    ide(ext=true);
     idepin1();
-    berg(true);
-    enable5v(true);
-    jumpers(true);
+    berg(ext=true);
+    enable5v(ext=true);
+    jumpers(ext=true);
     leds();
-    usbc(true);
+    usbc(ext=true);
     silkscreen();
 }
 
@@ -238,7 +238,7 @@ module top_basic() {
     top_lid();
     top_sides();
     top_supports();
-    rails();
+    rails(backrail=false);
 }
 
 module top_sides() {
@@ -303,10 +303,10 @@ module bottom() {
 }
 
 module bottom_subtractions() {
-    rails();
-    usbc(true);
-    ide(true);
-    berg(true);
+    rails(backrail=true);
+    usbc(ext=true);
+    ide(ext=true);
+    berg(ext=true);
 }
 
 module usbc(ext) {
@@ -347,7 +347,7 @@ module berg(ext) {
         cube(bergdim + (ext ? bergdimext : zero));
 }
 
-module rails() {
+module rails(backrail) {
     // Left.
     translate([wall-railthickness, wall, railheight])
     rotate([0, -45, 0])
@@ -359,10 +359,12 @@ module rails() {
         railseed(case.y-2*wall);
 
     // Back.
-    translate([wall, case.y-wall+railthickness, railheight])
-    rotate([0, 0, -90])
-    rotate([0, -45, 0])
-        railseed(case.x-2*wall);
+    if (backrail) {
+        translate([wall, case.y-wall+railthickness, railheight])
+        rotate([0, 0, -90])
+        rotate([0, -45, 0])
+            railseed(case.x-2*wall);
+    }
 }
 
 module railseed(length) {
