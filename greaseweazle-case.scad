@@ -139,6 +139,76 @@ module top_subtractions() {
     jumpers(true);
     leds();
     usbc(true);
+    silkscreen();
+}
+
+module silkscreen() {
+    fontsize=1;
+    font="Liberation Mono";
+
+    translate([pcbpos.x, pcbpos.y, case.z-.5])
+    linear_extrude(1)
+    union() {
+        translate(idepin1pos+[0, 5, 0])
+        rotate([0, 0, 180])
+            text("Pin 1", size=fontsize, font=font, halign="center");
+
+        translate(enable5vpos+enable5vposext+[enable5vdim.x/2 + enable5vdimext.x/2, -1, 0])
+        rotate([0, 0, 180])
+            text("USB 5V Enable", size=fontsize, font=font, halign="center");
+
+        translate(ledspos+[-1, 6, 0])
+        rotate([0, 0, 180])
+            text("Power", size=fontsize, font=font);
+
+        translate(ledspos+[-1, 3, 0])
+        rotate([0, 0, 180])
+            text("Activity", size=fontsize, font=font);
+
+        d=2.7;
+
+        translate(jumperspos+jumpersposext+[-1, -1, 0]) union() {
+            translate([0, d*1, 0]) rotate([0, 0, 180])
+                text("3.3V", size=fontsize, font=font);
+            translate([0, d*2, 0]) rotate([0, 0, 180])
+                text("GND", size=fontsize, font=font);
+            translate([0, d*3, 0]) rotate([0, 0, 180])
+                text("TXO", size=fontsize, font=font);
+            translate([0, d*4, 0]) rotate([0, 0, 180])
+                text("RXI", size=fontsize, font=font);
+            translate([0, d*5, 0]) rotate([0, 0, 180])
+                text("SWCLK", size=fontsize, font=font);
+            translate([0, d*6, 0]) rotate([0, 0, 180])
+                text("SWDIO", size=fontsize, font=font);
+        }
+
+        translate(jumperspos+jumpersposext+[jumpersdim.x+jumpersdimext.x, 0, 0]+[1, -1, 0]) union() {
+            translate([0, d*1, 0]) rotate([0, 0, 180])
+                text("DFU", size=fontsize, font=font, halign="right");
+            translate([0, d*2, 0]) rotate([0, 0, 180])
+                text("GND", size=fontsize, font=font, halign="right");
+            translate([0, d*3, 0]) rotate([0, 0, 180])
+                text("RESET", size=fontsize, font=font, halign="right");
+            translate([0, d*4, 0]) rotate([0, 0, 180])
+                text("WRITE- [", size=fontsize, font=font, halign="right");
+            translate([0, d*5, 0]) rotate([0, 0, 180])
+                text("ENABLE [", size=fontsize, font=font, halign="right");
+            translate([0, d*6, 0]) rotate([0, 0, 180])
+                text("5V", size=fontsize, font=font, halign="right");
+        }
+
+        translate(bergpos+bergposext+[bergdim.x/2+bergdimext.x/2, bergdim.y+bergdimext.y, 0]+[-5, 1, 0])
+        union() {
+            translate([10-d*1,0,0]) rotate([0, 0, 90])
+               text("+5V", size=fontsize, font=font);
+            translate([10-d*2,0,0]) rotate([0, 0, 90])
+               text("GND", size=fontsize, font=font);
+            translate([10-d*3,0,0]) rotate([0, 0, 90])
+               text("GND", size=fontsize, font=font);
+            translate([10-d*4,0,0]) rotate([0, 0, 90])
+               text("NC", size=fontsize, font=font);
+        }
+    }
 }
 
 module enable5v(ext) {
