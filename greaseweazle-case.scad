@@ -81,7 +81,7 @@ jumpersdimext=[12, 0, jumpersextraheight];
 
 // Power and activity LEDs.
 ledsextraheight=10;
-ledspos=[38, 41, 0];
+ledspos=[38, 41.5, 0];
 ledsdim=[6, 8, 1+ledsextraheight];
 
 
