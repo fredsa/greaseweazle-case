@@ -4,6 +4,9 @@ zero = [0, 0, 0];
 // Wall thickness, bottom and sides.
 wall=2;
 
+// Support thickness, back and middle.
+support=1;
+
 // Tiny delta to fix `difference()` for aligned geometry.
 delta=.01;
 
@@ -234,6 +237,7 @@ module leds() {
 module top_basic() {
     top_lid();
     top_sides();
+    top_supports();
     rails();
 }
 
@@ -245,14 +249,16 @@ module top_sides() {
     // Right.
     translate([case.x-2*wall, wall, case.z-wall-pcbtolidheight])
         top_side();
+}
 
+module top_supports() {
     // Back.
-    translate([wall, case.y-2*wall, case.z-wall-pcbtolidheight])
-        cube([case.x-2*wall, wall, pcbtolidheight]);
+    translate([wall, case.y-wall-support-delta, case.z-wall-pcbtolidheight])
+        cube([case.x-2*wall, support, pcbtolidheight]);
 
-    // Support bar.
-    translate([wall, enable5vpos.y-delta, case.z-wall-pcbtolidheight])
-        cube([case.x-2*wall, wall, pcbtolidheight]);
+    // Middle.
+    translate([wall, wall+enable5vpos.y-support-delta, case.z-wall-pcbtolidheight])
+        cube([case.x-2*wall, support, pcbtolidheight]);
 }
 
 module top_side() {
