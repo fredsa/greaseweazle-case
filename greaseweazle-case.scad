@@ -59,7 +59,7 @@ usbcabovepos=[usbcpos.x, pcbdim.y-usbcabovedim.y+wall, pcbtolidheight-usbcaboved
 // IDE connector.
 ideextraheight=5;
 idedim=[50.8, 9, 9]; // Plastic dimensions.
-idedimext=[0, wall, ideextraheight];
+idedimext=[1, wall, ideextraheight];
 idepos=[29, -1, 0]; // Relative to PCB.
 ideposext=[0, -wall, 0];
 
