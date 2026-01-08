@@ -1,3 +1,14 @@
+// ------------------------------------
+
+// Model.
+model(
+    assembled=!true,
+    top=true,
+    bottom=true,
+    pcb=true);
+
+// ------------------------------------
+
 // Convenience zero vector.
 zero = [0, 0, 0];
 
@@ -86,13 +97,6 @@ ledsdim=[6, 8, 1+ledsextraheight];
 
 
 // ------------------------------------
-
-// Model.
-model(
-    assembled=!true,
-    top=true,
-    bottom=true,
-    pcb=true);
 
 module model(assembled, top, bottom, pcb) {
     if (assembled) {
