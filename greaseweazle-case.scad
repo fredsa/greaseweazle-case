@@ -5,7 +5,8 @@ model(
     assembled=!true,
     top=true,
     bottom=true,
-    pcb=true);
+    pcb=true,
+    silkscreen=!true);
 
 // ------------------------------------
 
@@ -98,10 +99,10 @@ ledsdim=[6, 8, 1+ledsextraheight];
 
 // ------------------------------------
 
-module model(assembled, top, bottom, pcb) {
+module model(assembled, top, bottom, pcb, silkscreen) {
     if (assembled) {
         if (bottom) { bottom(); }
-        if (top) { top(); }
+        if (top) { top(silkscreen); }
         if (pcb) { %pcb(); }
     } else {
         // Bottom.
@@ -114,7 +115,7 @@ module model(assembled, top, bottom, pcb) {
         // Top, flipped over.
         translate([0, 0, case.z])
         rotate([180, 0, 0])
-            if (top) { top(); }
+            if (top) { top(silkscreen); }
     }
 }
 
@@ -130,12 +131,13 @@ module pcb() {
         cube(pcbdim);
 }
 
-module top() {
+module top(silkscreen) {
     difference() {
         top_basic();
         top_subtractions();
     }
     usbcabove();
+    if (silkscreen) { silkscreen(); }
 }
 
 module top_subtractions() {
@@ -146,15 +148,15 @@ module top_subtractions() {
     jumpers(ext=true);
     leds();
     usbc(ext=true);
-    silkscreen();
 }
 
 module silkscreen() {
     fontsize=1;
     font="Liberation Mono";
 
-    translate([pcbpos.x, pcbpos.y, case.z-.5])
-    linear_extrude(1)
+    color("#000")
+    translate([pcbpos.x, pcbpos.y, case.z-2])
+    linear_extrude(2+2*delta)
     union() {
         translate(idepin1pos+[0, 5, 0])
         rotate([0, 0, 180])
