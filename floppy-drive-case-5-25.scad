@@ -79,8 +79,21 @@ module case(front) {
         union() {
             drive();
             drive_remove();
-            translate([-delta, teac_holes_mid_d, 0-delta])
-                cube([teac_w+2*wall+2*delta, teac_d-teac_holes_mid_d+wall+delta, teac_h+2*wall+2*delta]);
+            if (front) {
+                translate([-delta, teac_holes_mid_d, 0-delta])
+                    cube([
+                        teac_w+2*wall+2*delta,
+                        teac_d-teac_holes_mid_d+wall+delta,
+                        teac_h+2*wall+2*delta
+                    ]);
+            } else {
+                translate([-delta, -delta, 0-delta])
+                    cube([
+                        teac_w+2*wall+2*delta,
+                        teac_holes_mid_d+delta,
+                        teac_h+2*wall+2*delta
+                    ]);
+            }
         }
     }
 }
@@ -113,23 +126,27 @@ module bottom(front) {
     }
 }
 
-module everything(print, front) {
+module everything(print, front, print_top, print_bottom) {
     separation = 10;
     
     if (print) {
-        translate([0, separation/2, 0])
-        translate([0, 0, teac_h+2*wall])
-        rotate([0, -180, 0])
-        union() {
-            top(front);
-            %drive();
+        if (print_top) {
+            translate([0, separation/2, 0])
+            translate([0, 0, teac_h+2*wall])
+            rotate([0, -180, 0])
+            union() {
+                top(front);
+                %drive();
+            }
         }
-        
-        translate([0, -separation/2, 0])
-        rotate([0, 0, 180])
-        union() {
-            bottom(front);
-            %drive();
+
+        if (print_bottom) {
+            translate([0, -separation/2, 0])
+            rotate([0, 0, 180])
+            union() {
+                bottom(front);
+                %drive();
+            }
         }
     }
     else {
@@ -140,4 +157,4 @@ module everything(print, front) {
     }
 }
 
-everything(print=true, front=true);
+everything(print=true, front=!true, print_top=!true, print_bottom=true);
