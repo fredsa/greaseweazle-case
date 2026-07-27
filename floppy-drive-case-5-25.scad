@@ -8,7 +8,7 @@ teac_h = 41.5;
 teac_w = 146; // At side screw mounts.
 teac_w_lip = 149; // At front lip.
 
-teac_d = 208 + /*trunk*/ 40;
+teac_d = 208 + /*trunk*/ 100;
 teac_d_lip = 5; // Depth of lip.
 teac_d_lip_neg = .5; // Stick out in front of drive.
 
@@ -24,6 +24,10 @@ teac_screw_l = 5; // Length.
 
 teac_screw_head_d = 5;
 teac_screw_head_l = 1;
+
+rail_w = 4;
+rail_l = 40;
+rail_h = 5;
 
 module hole(body_w, d, h) {
     $fn=20; 
@@ -73,8 +77,9 @@ module drive_remove() {
 
 module case(front) {
     difference() {
+        // Outer body.
         cube([teac_w, teac_d, teac_h] + [2*wall, wall, 2*wall]);
-        
+
         // Remove.
         union() {
             drive();
@@ -96,6 +101,16 @@ module case(front) {
             }
         }
     }
+
+    if (!front) {
+        // Left rail.
+        translate([wall,teac_d-rail_l,wall+teac_holes_center_h-rail_h])
+        cube([rail_w,rail_l,rail_h]);
+
+        // Right rail.
+        translate([wall+teac_w-rail_w,teac_d-rail_l,wall+teac_holes_center_h-rail_h])
+        cube([rail_w,rail_l,rail_h]);
+    }
 }
 
 module top(front) {
@@ -106,9 +121,6 @@ module top(front) {
         translate([-delta, -delta, -delta])
             cube([teac_w, teac_d, teac_holes_center_h]
                 + [2*wall+2*delta, wall+2*delta, wall]);
-        
-        // Remove inner drive volume.
-        drive();
     }
 }
 
@@ -120,9 +132,6 @@ module bottom(front) {
         translate([-delta, -delta, wall+teac_holes_center_h-delta])
             cube([teac_w, teac_d, teac_h-teac_holes_center_h]
                 + [2*wall+2*delta, wall+2*delta, wall+2*delta]);
-        
-        // Remove inner drive volume.
-        drive();
     }
 }
 
@@ -136,24 +145,20 @@ module everything(print, front, print_top, print_bottom) {
             rotate([0, -180, 0])
             union() {
                 top(front);
-                %drive();
+                //%drive();
             }
         }
 
         if (print_bottom) {
             translate([0, -separation/2, 0])
-            rotate([0, 0, 180])
+            rotate([0, 0, 90])
             union() {
                 bottom(front);
-                %drive();
+                //%drive();
             }
         }
-    }
-    else {
-        difference() {
-            case(front);
-            drive();
-        }
+    } else {
+        case(front);
     }
 }
 
