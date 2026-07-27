@@ -75,6 +75,32 @@ module drive_remove() {
     }
 }
 
+module rails() {
+    // Left rail.
+    translate([wall-delta,teac_d-rail_l-delta,wall+teac_holes_center_h-rail_h])
+    cube([rail_w+delta,rail_l+2*delta,rail_h]);
+
+    // Right rail.
+    translate([wall+teac_w-rail_w,teac_d-rail_l-delta,wall+teac_holes_center_h-rail_h])
+    cube([rail_w+delta,rail_l+2*delta,rail_h]);
+}
+
+module rail_holders() {
+    difference() {
+        union() {
+            // Left rail.
+            translate([wall,teac_d-rail_l,wall+teac_holes_center_h-2*rail_h])
+            cube([wall+rail_w,rail_l,teac_h-teac_holes_center_h+2*rail_h]);
+
+            // Right rail.
+            translate([teac_w-rail_w,teac_d-rail_l,wall+teac_holes_center_h-2*rail_h])
+            cube([wall+rail_w,rail_l,teac_h-teac_holes_center_h+2*rail_h]);
+        }
+
+        rails();
+    }
+}
+
 module case(front) {
     difference() {
         // Outer body.
@@ -101,16 +127,6 @@ module case(front) {
             }
         }
     }
-
-    if (!front) {
-        // Left rail.
-        translate([wall,teac_d-rail_l,wall+teac_holes_center_h-rail_h])
-        cube([rail_w,rail_l,rail_h]);
-
-        // Right rail.
-        translate([wall+teac_w-rail_w,teac_d-rail_l,wall+teac_holes_center_h-rail_h])
-        cube([rail_w,rail_l,rail_h]);
-    }
 }
 
 module top(front) {
@@ -122,6 +138,8 @@ module top(front) {
             cube([teac_w, teac_d, teac_holes_center_h]
                 + [2*wall+2*delta, wall+2*delta, wall]);
     }
+
+    rail_holders();
 }
 
 module bottom(front) {
@@ -133,6 +151,8 @@ module bottom(front) {
             cube([teac_w, teac_d, teac_h-teac_holes_center_h]
                 + [2*wall+2*delta, wall+2*delta, wall+2*delta]);
     }
+
+    rails();
 }
 
 module everything(print, front, print_top, print_bottom) {
@@ -140,9 +160,9 @@ module everything(print, front, print_top, print_bottom) {
     
     if (print) {
         if (print_top) {
-            translate([0, separation/2, 0])
+            translate([separation/2, 0, 0 ])
             translate([0, 0, teac_h+2*wall])
-            rotate([0, -180, 0])
+            rotate([0, -180, -90])
             union() {
                 top(front);
                 //%drive();
@@ -150,7 +170,7 @@ module everything(print, front, print_top, print_bottom) {
         }
 
         if (print_bottom) {
-            translate([0, -separation/2, 0])
+            translate([-separation/2, 0, 0])
             rotate([0, 0, 90])
             union() {
                 bottom(front);
@@ -162,4 +182,4 @@ module everything(print, front, print_top, print_bottom) {
     }
 }
 
-everything(print=true, front=!true, print_top=!true, print_bottom=true);
+everything(print=true, front=!true, print_top=true, print_bottom=!true);
