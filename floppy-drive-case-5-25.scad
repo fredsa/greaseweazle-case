@@ -34,6 +34,8 @@ rail_h = 5;
 rail_overlapgap_w=.3;
 rail_overlapgap_h=.6;
 
+preview_sep_z=rail_h*3;
+
 module hole(body_w, d, h) {
     $fn=20; 
     // Left.
@@ -106,7 +108,7 @@ module rail_holders() {
     }
 }
 
-module case(front,opentop) {
+module case(render_front, render_rear, opentop) {
     difference() {
         // Outer body.
         cube([teac_w, teac_d, teac_h] + [2*wall, wall, 2*wall]);
@@ -119,14 +121,15 @@ module case(front,opentop) {
                 translate([wall,teac_d-teac_d_trunk-delta,wall+teac_h-delta])
                 cube([teac_w,teac_d_trunk+delta,wall+2*delta]);
             }
-            if (front) {
+            if (!render_rear) {
                 translate([-delta, teac_holes_mid_d, 0-delta])
                     cube([
                         teac_w+2*wall+2*delta,
                         teac_d-teac_holes_mid_d+wall+delta,
                         teac_h+2*wall+2*delta
                     ]);
-            } else {
+            }
+            if (!render_front) {
                 translate([-delta, -delta, 0-delta])
                     cube([
                         teac_w+2*wall+2*delta,
@@ -138,9 +141,9 @@ module case(front,opentop) {
     }
 }
 
-module top(front,opentop) {
+module top(render_front, render_rear, opentop) {
     difference() {
-        case(front,opentop);
+        case(render_front, render_rear, opentop);
 
         // Remove bottom of case;
         translate([-delta, -delta, -delta])
@@ -148,16 +151,18 @@ module top(front,opentop) {
                 + [2*wall+2*delta, wall+2*delta, wall]);
     }
 
-    rail_holders();
-    if (opentop) {
-        translate([0,0,teac_h-teac_holes_center_h+wall])
-        rails(rail_w, rail_h);
+    if (render_rear) {
+        rail_holders();
+        if (opentop) {
+            translate([0,0,teac_h-teac_holes_center_h+wall])
+            rails(rail_w, rail_h);
+        }
     }
 }
 
-module bottom(front) {
+module bottom(render_front, render_rear, opentop) {
     difference() {
-        case(front,opentop);
+        case(render_front, render_rear, opentop);
 
         // Remove top of case;
         translate([-delta, -delta, wall+teac_holes_center_h-delta])
@@ -168,7 +173,11 @@ module bottom(front) {
     rails(rail_w, rail_h);
 }
 
-module everything(print, front, render_top, render_bottom, opentop) {
+module everything(print,
+    render_front, render_rear,
+    render_top, render_bottom,
+    opentop
+) {
     separation = 10;
     
     if (print) {
@@ -177,7 +186,7 @@ module everything(print, front, render_top, render_bottom, opentop) {
             translate([0, 0, teac_h+2*wall])
             rotate([0, -180, -90])
             union() {
-                top(front,opentop);
+                top(render_front,render_rear,opentop);
                 //%drive();
             }
         }
@@ -186,18 +195,23 @@ module everything(print, front, render_top, render_bottom, opentop) {
             translate([-separation/2, 0, 0])
             rotate([0, 0, 90])
             union() {
-                bottom(front,opentop);
+                bottom(render_front, render_rear, opentop);
                 //%drive();
             }
         }
     } else {
         if (render_top) {
-            top(front,opentop);
+            translate([0, 0, preview_sep_z])
+                top(render_front, render_rear, opentop);
         }
         if (render_bottom) {
-            bottom(front,opentop);
+            bottom(render_front, render_rear, opentop);
         }
     }
 }
 
-everything(print=true, front=!true, render_top=true, render_bottom=!true, opentop=true);
+everything(print=!true,
+    render_front=true, render_rear=true,
+    render_top=true, render_bottom=true,
+    opentop=true
+);
