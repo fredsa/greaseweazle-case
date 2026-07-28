@@ -167,11 +167,11 @@ module bottom(front) {
     rails(rail_w, rail_h);
 }
 
-module everything(print, front, print_top, print_bottom, opentop) {
+module everything(print, front, render_top, render_bottom, opentop) {
     separation = 10;
     
     if (print) {
-        if (print_top) {
+        if (render_top) {
             translate([separation/2, 0, 0 ])
             translate([0, 0, teac_h+2*wall])
             rotate([0, -180, -90])
@@ -181,7 +181,7 @@ module everything(print, front, print_top, print_bottom, opentop) {
             }
         }
 
-        if (print_bottom) {
+        if (render_bottom) {
             translate([-separation/2, 0, 0])
             rotate([0, 0, 90])
             union() {
@@ -190,8 +190,13 @@ module everything(print, front, print_top, print_bottom, opentop) {
             }
         }
     } else {
-        case(front,opentop);
+        if (render_top) {
+            top(front,opentop);
+        }
+        if (render_bottom) {
+            bottom(front,opentop);
+        }
     }
 }
 
-everything(print=true, front=!true, print_top=true, print_bottom=!true, opentop=true);
+everything(print=true, front=!true, render_top=true, render_bottom=!true, opentop=true);
