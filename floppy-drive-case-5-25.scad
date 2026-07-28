@@ -31,7 +31,8 @@ rail_l = 40;
 rail_h = 5;
 
 // Material to remove for adjacent interlocking geometry.
-rail_overlapgap=.1;
+rail_overlapgap_w=.3;
+rail_overlapgap_h=.6;
 
 module hole(body_w, d, h) {
     $fn=20; 
@@ -94,14 +95,14 @@ module rail_holders() {
         union() {
             // Left rail.
             translate([wall,teac_d-rail_l,wall+teac_holes_center_h-2*rail_h])
-            cube([wall+rail_w,rail_l,4*rail_h]);
+            cube([wall+rail_w+rail_overlapgap_w,rail_l,4*rail_h]);
 
             // Right rail.
-            translate([teac_w-rail_w,teac_d-rail_l,wall+teac_holes_center_h-2*rail_h])
-            cube([wall+rail_w,rail_l,4*rail_h]);
+            translate([teac_w-rail_w-rail_overlapgap_w,teac_d-rail_l,wall+teac_holes_center_h-2*rail_h])
+            cube([wall+rail_w+rail_overlapgap_w,rail_l,4*rail_h]);
         }
 
-        rails(rail_w+rail_overlapgap, rail_h+rail_overlapgap);
+        rails(rail_w+rail_overlapgap_w, rail_h+rail_overlapgap_h);
     }
 }
 
