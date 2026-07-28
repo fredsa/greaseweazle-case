@@ -8,7 +8,8 @@ teac_h = 41.5 + 1.5 /* additional clearance: */;
 teac_w = 146; // At side screw mounts.
 teac_w_lip = 149; // At front lip.
 
-teac_d = 208 + /*trunk*/ 100;
+teac_d_trunk = 100;
+teac_d = 208 + teac_d_trunk;
 teac_d_lip = 5; // Depth of lip.
 teac_d_lip_neg = .5; // Stick out in front of drive.
 
@@ -93,18 +94,18 @@ module rail_holders() {
         union() {
             // Left rail.
             translate([wall,teac_d-rail_l,wall+teac_holes_center_h-2*rail_h])
-            cube([wall+rail_w,rail_l,teac_h-teac_holes_center_h+2*rail_h]);
+            cube([wall+rail_w,rail_l,4*rail_h]);
 
             // Right rail.
             translate([teac_w-rail_w,teac_d-rail_l,wall+teac_holes_center_h-2*rail_h])
-            cube([wall+rail_w,rail_l,teac_h-teac_holes_center_h+2*rail_h]);
+            cube([wall+rail_w,rail_l,4*rail_h]);
         }
 
         rails(rail_w+rail_overlapgap, rail_h+rail_overlapgap);
     }
 }
 
-module case(front) {
+module case(front,opentop) {
     difference() {
         // Outer body.
         cube([teac_w, teac_d, teac_h] + [2*wall, wall, 2*wall]);
@@ -113,6 +114,10 @@ module case(front) {
         union() {
             drive();
             drive_remove();
+            if (opentop) {
+                translate([wall,teac_d-teac_d_trunk-delta,wall+teac_h-delta])
+                cube([teac_w,teac_d_trunk+delta,wall+2*delta]);
+            }
             if (front) {
                 translate([-delta, teac_holes_mid_d, 0-delta])
                     cube([
@@ -132,9 +137,9 @@ module case(front) {
     }
 }
 
-module top(front) {
+module top(front,opentop) {
     difference() {
-        case(front);
+        case(front,opentop);
 
         // Remove bottom of case;
         translate([-delta, -delta, -delta])
@@ -143,11 +148,15 @@ module top(front) {
     }
 
     rail_holders();
+    if (opentop) {
+        translate([0,0,teac_h-teac_holes_center_h+wall])
+        rails(rail_w, rail_h);
+    }
 }
 
 module bottom(front) {
     difference() {
-        case(front);
+        case(front,opentop);
 
         // Remove top of case;
         translate([-delta, -delta, wall+teac_holes_center_h-delta])
@@ -158,7 +167,7 @@ module bottom(front) {
     rails(rail_w, rail_h);
 }
 
-module everything(print, front, print_top, print_bottom) {
+module everything(print, front, print_top, print_bottom, opentop) {
     separation = 10;
     
     if (print) {
@@ -167,7 +176,7 @@ module everything(print, front, print_top, print_bottom) {
             translate([0, 0, teac_h+2*wall])
             rotate([0, -180, -90])
             union() {
-                top(front);
+                top(front,opentop);
                 //%drive();
             }
         }
@@ -176,13 +185,13 @@ module everything(print, front, print_top, print_bottom) {
             translate([-separation/2, 0, 0])
             rotate([0, 0, 90])
             union() {
-                bottom(front);
+                bottom(front,opentop);
                 //%drive();
             }
         }
     } else {
-        case(front);
+        case(front,opentop);
     }
 }
 
-everything(print=true, front=!true, print_top=true, print_bottom=!true);
+everything(print=true, front=!true, print_top=true, print_bottom=!true, opentop=true);
