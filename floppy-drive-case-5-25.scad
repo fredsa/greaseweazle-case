@@ -29,6 +29,9 @@ rail_w = 4;
 rail_l = 40;
 rail_h = 5;
 
+// Material to remove for adjacent interlocking geometry.
+rail_overlapgap=.1;
+
 module hole(body_w, d, h) {
     $fn=20; 
     // Left.
@@ -75,14 +78,14 @@ module drive_remove() {
     }
 }
 
-module rails() {
+module rails(w, h) {
     // Left rail.
-    translate([wall-delta,teac_d-rail_l-delta,wall+teac_holes_center_h-rail_h])
-    cube([rail_w+delta,rail_l+2*delta,rail_h]);
+    translate([wall-delta,teac_d-rail_l-delta,wall+teac_holes_center_h-h])
+    cube([w+delta,rail_l+2*delta,h]);
 
     // Right rail.
-    translate([wall+teac_w-rail_w,teac_d-rail_l-delta,wall+teac_holes_center_h-rail_h])
-    cube([rail_w+delta,rail_l+2*delta,rail_h]);
+    translate([wall+teac_w-rail_w,teac_d-rail_l-delta,wall+teac_holes_center_h-h])
+    cube([w+delta,rail_l+2*delta,h]);
 }
 
 module rail_holders() {
@@ -97,7 +100,7 @@ module rail_holders() {
             cube([wall+rail_w,rail_l,teac_h-teac_holes_center_h+2*rail_h]);
         }
 
-        rails();
+        rails(rail_w+rail_overlapgap, rail_h+rail_overlapgap);
     }
 }
 
@@ -152,7 +155,7 @@ module bottom(front) {
                 + [2*wall+2*delta, wall+2*delta, wall+2*delta]);
     }
 
-    rails();
+    rails(rail_w, rail_h);
 }
 
 module everything(print, front, print_top, print_bottom) {
