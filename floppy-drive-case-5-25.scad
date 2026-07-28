@@ -3,7 +3,7 @@ delta = 0.01;
 wall = 3;
 
 // TEAC FD-55GFR 5.25" floppy disk drive.
-teac_h = 41.5;
+teac_h = 41.5 + 1.5 /* additional clearance: */;
 
 teac_w = 146; // At side screw mounts.
 teac_w_lip = 149; // At front lip.
