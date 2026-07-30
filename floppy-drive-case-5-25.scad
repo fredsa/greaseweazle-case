@@ -1,9 +1,11 @@
+$fn=20;
 delta = 0.01;
+print_separation = 10;
 
 wall = 3;
 
 // TEAC FD-55GFR 5.25" floppy disk drive.
-teac_h = 41.5 + 1.5 /* additional clearance: */;
+teac_h = 41.5 + 1.5 /* additional clearance above */;
 
 teac_w = 146; // At side screw mounts.
 teac_w_lip = 149; // At front lip.
@@ -20,11 +22,46 @@ teac_holes_bottom_h = 10; // From bottom face.
 teac_holes_top_h = 22; // From bottom face.
 teac_holes_center_h = (teac_holes_top_h + teac_holes_bottom_h)/2;
 
-teac_screw_d = 3; // M3.
-teac_screw_l = 5; // Length.
 
-teac_screw_head_d = 5;
-teac_screw_head_l = 1;
+// Sony Z/161 3.5" floppy disk drive.
+sony_w = 101.6; // 4" at side screw mounts.
+sony_w_lip = 102.5; // At front lip.
+
+sony_holes_front_d = 25; // From front face.
+sony_holes_middle_d = 85; // From front face.
+sony_holes_rear_d = 115; // From front face.
+
+sony_d = 146; // ~5.7"
+sony_d_trunk = teac_d-sony_d;
+sony_d_lip = 4;
+
+sony_h_below_clearance = 1;
+sony_h = sony_h_below_clearance + 25.4; // 1"
+sony_holes_h = sony_h_below_clearance + 5; // From bottom face.
+
+// Brass insert https://www.mcmaster.com/94459A260/
+brass_insert_l = 4.3; // Installed Length 0.170"
+brass_insert_d = 4; // Maximum hole diameter 0.157"
+
+brass_insert_h1 = sony_holes_h; // Bottom hole.
+brass_insert_h2 = sony_h+wall-brass_insert_h1; // Top hole.
+
+
+// Mounting posts.
+post_d = 10;
+post_w = brass_insert_l + wall;
+
+sony_x=post_d;
+
+
+screwdriver_shaft_d = 8;
+
+screw_d = 3; // M3.
+screw_l = 6; // Length.
+
+screw_head_d = 8.5;
+screw_head_l = wall-1.5; //3;
+
 
 rail_w = 4;
 rail_l = 40;
@@ -36,22 +73,34 @@ rail_overlapgap_h=.6;
 
 preview_sep_z=rail_h*3;
 
-module teac_hole(body_w, d, h) {
-    $fn=20; 
+
+module screwdriver_hole(body_w, d, h) {
+    // Left.
+    translate([-wall-delta,d,h])
+    rotate([0,90,0])
+        cylinder(wall+2*delta, screwdriver_shaft_d/2, screwdriver_shaft_d/2);
+
+    // Right.
+    translate([body_w-delta,d,h])
+    rotate([0,90,0])
+        cylinder(wall+2*delta, screwdriver_shaft_d/2, screwdriver_shaft_d/2);
+}
+
+module screw_hole(body_w, d, h) {
     // Left.
     translate([-wall-delta, d, h])
     rotate([0,90,0])
         union() {
-            cylinder(teac_screw_l+wall, teac_screw_d/2, teac_screw_d/2);
-            cylinder(teac_screw_head_l, teac_screw_head_d/2, teac_screw_head_d/2);
+            cylinder(screw_l+wall, screw_d/2, screw_d/2);
+            cylinder(screw_head_l, screw_head_d/2, screw_head_d/2);
         }
 
     // Right.
-    translate([teac_w+wall+delta, d, h])
+    translate([body_w+wall+delta, d, h])
     rotate([0,-90,0])
         union() {
-            cylinder(teac_screw_l+wall, teac_screw_d/2, teac_screw_d/2);
-            cylinder(teac_screw_head_l, teac_screw_head_d/2, teac_screw_head_d/2);
+            cylinder(screw_l+wall, screw_d/2, screw_d/2);
+            cylinder(screw_head_l, screw_head_d/2, screw_head_d/2);
         }
 }
 
@@ -71,10 +120,10 @@ module teac_drive_remove() {
     translate([wall, -delta, wall])
     union() {
         // Remove.
-        teac_hole(teac_w, teac_holes_front_d,teac_holes_bottom_h);
-        teac_hole(teac_w, teac_holes_front_d,teac_holes_top_h);
-        teac_hole(teac_w, teac_holes_rear_d,teac_holes_bottom_h);
-        teac_hole(teac_w, teac_holes_rear_d,teac_holes_top_h);
+        screw_hole(teac_w, teac_holes_front_d,teac_holes_bottom_h);
+        screw_hole(teac_w, teac_holes_front_d,teac_holes_top_h);
+        screw_hole(teac_w, teac_holes_rear_d,teac_holes_bottom_h);
+        screw_hole(teac_w, teac_holes_rear_d,teac_holes_top_h);
         
         // (Incorrectly positioned) front slot.
         translate([5, -delta, (teac_h-5)/2])
@@ -82,30 +131,36 @@ module teac_drive_remove() {
     }
 }
 
-module teac_rails(w, h) {
+module rails(w, h) {
     // Left rail.
-    translate([wall-delta,teac_d-rail_l-delta,wall+teac_holes_center_h-h])
+    translate([wall-delta,teac_d-rail_l-delta,-h])
         cube([w+delta,rail_l+2*delta,h]);
 
     // Right rail.
-    translate([wall+teac_w-rail_w,teac_d-rail_l-delta,wall+teac_holes_center_h-h])
+    translate([wall+teac_w-rail_w,teac_d-rail_l-delta,-h])
         cube([w+delta,rail_l+2*delta,h]);
 }
 
-module teac_rail_holders() {
+module rail_holders() {
     difference() {
+            translate([0, 0, -2*rail_h])
         union() {
             // Left rail.
-            translate([wall,teac_d-rail_l,wall+teac_holes_center_h-2*rail_h])
+            translate([wall, teac_d-rail_l, 0])
                 cube([wall+rail_w+rail_overlapgap_w,rail_l,4*rail_h]);
 
             // Right rail.
-            translate([teac_w-rail_w-rail_overlapgap_w,teac_d-rail_l,wall+teac_holes_center_h-2*rail_h])
+            translate([teac_w-rail_w-rail_overlapgap_w, teac_d-rail_l, 0])
                 cube([wall+rail_w+rail_overlapgap_w,rail_l,4*rail_h]);
         }
 
-        teac_rails(rail_w+rail_overlapgap_w, rail_h+rail_overlapgap_h);
+        rails(rail_w+rail_overlapgap_w, rail_h+rail_overlapgap_h);
     }
+}
+
+module teac_rail_holders() {
+    translate([0, 0, wall+teac_holes_center_h])
+        rail_holders();
 }
 
 module teac_case(render_front, render_rear, opentop) {
@@ -154,8 +209,8 @@ module teac_top(render_front, render_rear, opentop) {
     if (render_rear) {
         teac_rail_holders();
         if (opentop) {
-            translate([0,0,teac_h-teac_holes_center_h+wall])
-                teac_rails(rail_w, rail_h);
+            translate([0,0,2*wall+teac_h])
+                rails(rail_w, rail_h);
         }
     }
 }
@@ -170,19 +225,19 @@ module teac_bottom(render_front, render_rear, opentop) {
                 + [2*wall+2*delta, wall+2*delta, wall+2*delta]);
     }
 
-    teac_rails(rail_w, rail_h);
+    translate([0, 0, wall+teac_holes_center_h])
+    rails(rail_w, rail_h);
 }
 
-module teac_everything(print,
-    render_front, render_rear,
-    render_top, render_bottom,
-    opentop
-) {
-    separation = 10;
-    
+module teac_everything(
+        print,
+        render_front, render_rear,
+        render_top, render_bottom,
+        opentop
+) {    
     if (print) {
         if (render_top) {
-            translate([separation/2, 0, 0 ])
+            translate([print_separation/2, 0, 0 ])
             translate([0, 0, teac_h+2*wall])
             rotate([0, -180, -90])
             union() {
@@ -192,7 +247,7 @@ module teac_everything(print,
         }
 
         if (render_bottom) {
-            translate([-separation/2, 0, 0])
+            translate([-print_separation/2, 0, 0])
             rotate([0, 0, 90])
             union() {
                 teac_bottom(render_front, render_rear, opentop);
@@ -210,8 +265,165 @@ module teac_everything(print,
     }
 }
 
-teac_everything(print=!true,
-    render_front=true, render_rear=true,
-    render_top=true, render_bottom=true,
-    opentop=true
-);
+module sony_drive_remove(opentop) {
+    translate([wall, 0, 0])
+    union() {
+        // Drive + trunk.
+        translate([sony_x, -delta, -delta])
+            cube([sony_w, sony_d+2*delta, sony_h+2*delta]);
+
+        // Front lip.
+        translate([sony_x-(sony_w_lip-sony_w)/2, 0, 0])
+            cube([sony_w_lip, sony_d_lip, sony_h+delta]);
+
+        // Mounting screw holes.
+        translate([sony_x, 0, 0])
+        union() {
+            screw_hole(sony_w, sony_holes_front_d, sony_holes_h+delta);
+            screw_hole(sony_w, sony_holes_middle_d, sony_holes_h+delta);
+            screw_hole(sony_w, sony_holes_rear_d, sony_holes_h+delta);
+        }
+
+        // Screwdriver access.
+        screwdriver_hole(teac_w, sony_holes_front_d, sony_holes_h+delta);
+        screwdriver_hole(teac_w, sony_holes_middle_d, sony_holes_h+delta);
+        screwdriver_hole(teac_w, sony_holes_rear_d, sony_holes_h+delta);
+
+        if (opentop) {
+            translate([0,teac_d-teac_d_trunk-delta,sony_h-delta])
+                cube([teac_w,teac_d_trunk+delta,wall+2*delta]);
+        }
+    }
+}
+
+module sony_case_plain(opentop) {
+    difference() {
+        union() {
+            // Sony case.
+            translate([sony_x, 0, 0])
+                cube([2*wall+sony_w, sony_d, sony_h-delta]);
+
+            // Left side.
+            cube([wall, teac_d+wall, sony_h-delta]);
+
+            // Right side.
+            translate([wall+teac_w, 0, 0])
+                cube([wall, teac_d+wall, sony_h-delta]);
+
+            // Rear wall.
+            translate([0, teac_d, 0])
+                cube([2*wall+teac_w, wall, sony_h-delta]);
+            
+            // Top.
+            translate([0, 0, sony_h])
+                cube([2*wall+teac_w, teac_d+wall, wall]);
+        }        
+
+        // Remove interior.
+        sony_drive_remove(opentop);
+    }
+
+    // Rails.
+    translate([0, 0, sony_h+wall])
+        rails(rail_w, rail_h);
+
+    // Rail holders.
+    rail_holders();
+}
+
+module sony_attachment_post(d) {
+    // Left inner attachment post.
+    translate([wall, d-post_d/2, 0])
+        cube([post_w, post_d, sony_h]);
+
+    // Right inner attachment post.
+    translate([wall+teac_w-post_w, d-post_d/2, 0])
+        cube([post_w, post_d, sony_h]);
+}
+
+module sony_brass_inserts(d, h) {
+    // Left.
+    translate([-delta, d, h])
+    rotate([0,90,0])
+        cylinder(brass_insert_l+delta, brass_insert_d/2, brass_insert_d/2);
+
+    // Right.
+    translate([2*wall+teac_w-brass_insert_l, d, h])
+    rotate([0,90,0])
+        cylinder(brass_insert_l+delta, brass_insert_d/2, brass_insert_d/2);
+}
+
+module sony_case(opentop) {
+    difference() {
+        union() {
+            sony_case_plain(opentop);
+            sony_attachment_post(teac_holes_rear_d);
+        }
+
+        // Brass inserts.
+        sony_brass_inserts(teac_holes_rear_d, brass_insert_h1);
+        sony_brass_inserts(teac_holes_rear_d, brass_insert_h2);
+    }
+}
+
+module _sony_everything(print, render_front, render_rear, opentop) {
+    difference() {
+        sony_case(opentop);
+
+        // Remove.
+        translate([0,0,-3*rail_h])
+        union() {
+            if (!render_rear) {
+                translate([-delta, teac_holes_mid_d, 0-delta])
+                    cube([
+                        teac_w+2*wall+2*delta,
+                        teac_d-teac_holes_mid_d+wall+delta,
+                        teac_h+2*wall+2*delta
+                    ]);
+            }
+            if (!render_front) {
+                translate([-delta, -delta, 0-delta])
+                    cube([
+                        teac_w+2*wall+2*delta,
+                        teac_holes_mid_d+delta,
+                        teac_h+2*wall+2*delta
+                    ]);
+            }
+        }
+    }
+}
+
+module sony_everything(print, render_front, render_rear, opentop) {
+    if (print) {
+        rotate([0,180,90])
+        translate([print_separation/2, 0, -sony_h-wall])
+        _sony_everything(print, render_front, render_rear, opentop);
+    } else {
+        translate([0, 0, 2*wall+teac_h])
+        translate([0, 0, 2*preview_sep_z])
+            _sony_everything(print, render_front, render_rear, opentop);
+    }
+}
+
+print=!true;
+opentop=true;
+teac=true;
+sony=true;
+lid=true;
+render_front=true;
+render_rear=true;
+render_top=true;
+render_bottom=true;
+
+
+if (teac) {
+    teac_everything(
+        print,
+        render_front, render_rear,
+        render_top, render_bottom,
+        opentop
+    );
+}
+if (sony) {
+    sony_everything(print, render_front, render_rear, opentop);
+}
