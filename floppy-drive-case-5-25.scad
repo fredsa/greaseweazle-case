@@ -141,26 +141,38 @@ module rails(w, h) {
         cube([w+delta,rail_l+2*delta,h]);
 }
 
-module rail_holders() {
+module rail_holders(sidemount) {
     difference() {
             translate([0, 0, -2*rail_h])
-        union() {
-            // Left rail.
-            translate([wall, teac_d-rail_l, 0])
-                cube([wall+rail_w+rail_overlapgap_w,rail_l,4*rail_h]);
+            union() {
+                // Left rail.
+                translate([wall, teac_d-rail_l, 0])
+                    cube([wall+rail_w+rail_overlapgap_w,rail_l,2*rail_h]);
 
-            // Right rail.
-            translate([teac_w-rail_w-rail_overlapgap_w, teac_d-rail_l, 0])
-                cube([wall+rail_w+rail_overlapgap_w,rail_l,4*rail_h]);
-        }
+                // Right rail.
+                translate([teac_w-rail_w-rail_overlapgap_w, teac_d-rail_l, 0])
+                    cube([wall+rail_w+rail_overlapgap_w,rail_l,2*rail_h]);
 
-        rails(rail_w+rail_overlapgap_w, rail_h+rail_overlapgap_h);
+                if (sidemount) {
+                    // Left rail.
+                    translate([wall, teac_d-rail_l, 2*rail_h])
+                        cube([wall+rail_w+rail_overlapgap_w,rail_l,2*rail_h]);
+
+                    // Right rail.
+                    translate([teac_w-rail_w-rail_overlapgap_w, teac_d-rail_l, 2*rail_h])
+                        cube([wall+rail_w+rail_overlapgap_w,rail_l,2*rail_h]);
+
+                }
+            }
+
+            // Remove.
+            rails(rail_w+rail_overlapgap_w, rail_h+rail_overlapgap_h);
     }
 }
 
 module teac_rail_holders() {
     translate([0, 0, wall+teac_holes_center_h])
-        rail_holders();
+        rail_holders(sidemount=true);
 }
 
 module teac_case(render_front, render_rear, opentop) {
@@ -328,7 +340,7 @@ module sony_case_plain(opentop) {
         rails(rail_w, rail_h);
 
     // Rail holders.
-    rail_holders();
+    rail_holders(sidemount=true);
 }
 
 module sony_attachment_post(d) {
@@ -405,6 +417,28 @@ module sony_everything(print, render_front, render_rear, opentop) {
     }
 }
 
+module case_lid(print) {
+    if (print) {
+        translate([0, -2*wall-teac_w-print_separation/2, 0])
+        rotate([0,180,-90])
+        union() {
+            translate([0, teac_d-teac_d_trunk-wall, 0])
+                cube([2*wall+teac_w, teac_d_trunk+2*wall, wall]);
+
+            rail_holders(sidemount=false);
+        }
+    } else {
+        translate([0, 0, 3*wall+teac_h+sony_h])
+        translate([0, 0, 3*preview_sep_z])
+        union() {
+            translate([0, teac_d-teac_d_trunk-wall, 0])
+                cube([2*wall+teac_w, teac_d_trunk+2*wall, wall]);
+
+            rail_holders(sidemount=false);
+        }
+    }
+}
+
 print=!true;
 opentop=true;
 teac=true;
@@ -426,4 +460,8 @@ if (teac) {
 }
 if (sony) {
     sony_everything(print, render_front, render_rear, opentop);
+}
+
+if (lid) {
+    case_lid(print);
 }
