@@ -60,8 +60,12 @@ screw_d = 3; // M3.
 screw_l = 6; // Length.
 
 screw_head_d = 8.5;
-screw_head_l = wall-1.5; //3;
+screw_sink_deep = 3.5; // Accomodate 3mm head depth.
+screw_sink_shallow = wall-1.5; // Shallow sink.
 
+strip_w = screw_sink_deep+2;
+strip_d = 12;
+strip_r = 1;
 
 rail_w = 4;
 rail_l = 40;
@@ -70,8 +74,6 @@ rail_h = 5;
 // Material to remove for adjacent interlocking geometry.
 rail_overlapgap_w=.3;
 rail_overlapgap_h=.6;
-
-preview_sep_z=rail_h*3;
 
 
 module screwdriver_hole(body_w, d, h) {
@@ -86,22 +88,30 @@ module screwdriver_hole(body_w, d, h) {
         cylinder(wall+2*delta, screwdriver_shaft_d/2, screwdriver_shaft_d/2);
 }
 
-module screw_hole(body_w, d, h) {
-    // Left.
-    translate([-wall-delta, d, h])
+module screw_left(screw_l, sink_l) {
+    translate([-delta,0,0])
     rotate([0,90,0])
         union() {
-            cylinder(screw_l+wall, screw_d/2, screw_d/2);
-            cylinder(screw_head_l, screw_head_d/2, screw_head_d/2);
+            if (screw_l>0) {
+                cylinder(sink_l+screw_l+2*delta, screw_d/2, screw_d/2);
+            }
+            cylinder(sink_l+2*delta, screw_head_d/2, screw_head_d/2);
         }
+}
 
-    // Right.
-    translate([body_w+wall+delta, d, h])
-    rotate([0,-90,0])
-        union() {
-            cylinder(screw_l+wall, screw_d/2, screw_d/2);
-            cylinder(screw_head_l, screw_head_d/2, screw_head_d/2);
-        }
+module screw_right(screw_l, sink_l) {
+    rotate([0,180,0])
+    screw_left(screw_l, sink_l);
+}
+
+module screws(x1, x2, d, h, screw_l, sink_l) {
+    translate([0, d, h])
+    union() {
+        translate([x1,0,0])
+            screw_left(screw_l, sink_l);
+        translate([x2,0,0])
+            screw_right(screw_l, sink_l);
+    }
 }
 
 module teac_drive() {
@@ -117,18 +127,18 @@ module teac_drive() {
 }
 
 module teac_drive_remove() {
-    translate([wall, -delta, wall])
-    union() {
-        // Remove.
-        screw_hole(teac_w, teac_holes_front_d,teac_holes_bottom_h);
-        screw_hole(teac_w, teac_holes_front_d,teac_holes_top_h);
-        screw_hole(teac_w, teac_holes_rear_d,teac_holes_bottom_h);
-        screw_hole(teac_w, teac_holes_rear_d,teac_holes_top_h);
-        
-        // (Incorrectly positioned) front slot.
-        translate([5, -delta, (teac_h-5)/2])
-            cube([teac_w-10, teac_d-10, 5]);
+    translate([0, 0, wall])
+    union() {        
+        screws(0, 2*wall+teac_w, teac_holes_front_d, teac_holes_bottom_h, screw_l, screw_sink_shallow);
+        screws(0, 2*wall+teac_w, teac_holes_front_d, teac_holes_top_h, screw_l, screw_sink_shallow);
+        screws(0, 2*wall+teac_w, teac_holes_rear_d, teac_holes_bottom_h, screw_l, screw_sink_shallow);
+        screws(0, 2*wall+teac_w, teac_holes_rear_d, teac_holes_top_h, screw_l, screw_sink_shallow);
     }
+
+    translate([wall, -delta, wall])
+    // (Incorrectly positioned) front slot.
+    translate([5, -delta, (teac_h-5)/2])
+        cube([teac_w-10, teac_d-10, 5]);
 }
 
 module rails(w, h) {
@@ -245,7 +255,7 @@ module teac_everything(
         print,
         render_front, render_rear,
         render_top, render_bottom,
-        opentop
+        opentop, explode_d
 ) {    
     if (print) {
         if (render_top) {
@@ -268,7 +278,7 @@ module teac_everything(
         }
     } else {
         if (render_top) {
-            translate([0, 0, preview_sep_z])
+            translate([0, 0, explode_d])
                 teac_top(render_front, render_rear, opentop);
         }
         if (render_bottom) {
@@ -278,6 +288,19 @@ module teac_everything(
 }
 
 module sony_drive_remove(opentop) {
+    // Mounting screw holes.
+    translate([sony_x, 0, 0])
+        union() {
+            screws(0, 2*wall+sony_w, sony_holes_front_d, sony_holes_h, screw_l, screw_sink_shallow);
+            screws(0, 2*wall+sony_w, sony_holes_middle_d, sony_holes_h, screw_l, screw_sink_shallow);
+            screws(0, 2*wall+sony_w, sony_holes_rear_d, sony_holes_h, screw_l, screw_sink_shallow);
+        }
+
+    // Screwdriver access.
+    screws(0, 2*wall+teac_w, sony_holes_front_d, sony_holes_h, 0, wall);
+    screws(0, 2*wall+teac_w, sony_holes_middle_d, sony_holes_h, 0, wall);
+    screws(0, 2*wall+teac_w, sony_holes_rear_d, sony_holes_h, 0, wall);
+
     translate([wall, 0, 0])
     union() {
         // Drive + trunk.
@@ -287,19 +310,6 @@ module sony_drive_remove(opentop) {
         // Front lip.
         translate([sony_x-(sony_w_lip-sony_w)/2, 0, 0])
             cube([sony_w_lip, sony_d_lip, sony_h+delta]);
-
-        // Mounting screw holes.
-        translate([sony_x, 0, 0])
-        union() {
-            screw_hole(sony_w, sony_holes_front_d, sony_holes_h+delta);
-            screw_hole(sony_w, sony_holes_middle_d, sony_holes_h+delta);
-            screw_hole(sony_w, sony_holes_rear_d, sony_holes_h+delta);
-        }
-
-        // Screwdriver access.
-        screwdriver_hole(teac_w, sony_holes_front_d, sony_holes_h+delta);
-        screwdriver_hole(teac_w, sony_holes_middle_d, sony_holes_h+delta);
-        screwdriver_hole(teac_w, sony_holes_rear_d, sony_holes_h+delta);
 
         if (opentop) {
             translate([0,teac_d-teac_d_trunk-delta,sony_h-delta])
@@ -405,19 +415,19 @@ module _sony_everything(print, render_front, render_rear, opentop) {
     }
 }
 
-module sony_everything(print, render_front, render_rear, opentop) {
+module sony_everything(print, render_front, render_rear, opentop, explode_d) {
     if (print) {
         rotate([0,180,90])
         translate([print_separation/2, 0, -sony_h-wall])
         _sony_everything(print, render_front, render_rear, opentop);
     } else {
         translate([0, 0, 2*wall+teac_h])
-        translate([0, 0, 2*preview_sep_z])
+        translate([0, 0, 2*explode_d])
             _sony_everything(print, render_front, render_rear, opentop);
     }
 }
 
-module case_lid(print) {
+module case_lid(print, explode_d) {
     if (print) {
         translate([0, -2*wall-teac_w-print_separation/2, 0])
         rotate([0,180,-90])
@@ -429,7 +439,7 @@ module case_lid(print) {
         }
     } else {
         translate([0, 0, 3*wall+teac_h+sony_h])
-        translate([0, 0, 3*preview_sep_z])
+        translate([0, 0, 3*explode_d])
         union() {
             translate([0, teac_d-teac_d_trunk-wall, 0])
                 cube([2*wall+teac_w, teac_d_trunk+2*wall, wall]);
@@ -439,15 +449,83 @@ module case_lid(print) {
     }
 }
 
+module plain_strip(print) {
+    minkowski()
+    {
+        // Base shape.
+        translate([2*strip_r,0,strip_r])
+            cube([strip_w-2*strip_r, strip_d, 3*wall+teac_h+sony_h-3*strip_r]);
+
+        // Round corners.
+        difference() {
+            rotate([-90,0,0])
+                cylinder(r=strip_r,h=1);
+            translate([0,-delta,-strip_r-delta])
+                cube([strip_r,1+2*delta,2*strip_r+2*delta]);
+        }
+        difference()
+        {
+            rotate([0,0,90])
+                cylinder(r=strip_r,h=1);
+            translate([0,-strip_r-delta,-delta])
+                cube([strip_r,2*strip_r+2*delta,1+2*delta]);
+        }
+    }
+}
+
+module strip(print) {
+    difference() {
+        plain_strip(print);
+        
+        // Remove screws.
+        translate([0, strip_d/2, wall+teac_holes_bottom_h])
+            screw_left(screw_l, screw_sink_deep);
+        translate([0, strip_d/2, wall+teac_holes_top_h])
+            screw_left(screw_l, screw_sink_deep);
+        translate([0, strip_d/2, 2*wall+teac_h+brass_insert_h1])
+            screw_left(screw_l, screw_sink_deep);
+        translate([0, strip_d/2, 2*wall+teac_h+brass_insert_h2])
+            screw_left(screw_l, screw_sink_deep);
+    }
+}
+
+module case_strips(print, explode_d) {
+    if (print) {
+        //Left.
+        translate([print_separation, -strip_d-print_separation, strip_w])
+        rotate([0, 90, 0])
+            strip(false);
+
+        //Right.
+        translate([print_separation, -2*strip_d-2*print_separation, strip_w])
+        rotate([0, 90, 0])
+            strip(false);
+
+    } else {
+        //Left.
+        translate([-strip_w-explode_d,teac_holes_rear_d-strip_d/2,0])
+            strip(false);
+
+        // Right.
+        translate([2*wall+teac_w+explode_d,teac_holes_rear_d-strip_d/2,0])
+        translate([strip_w, strip_d, 0])
+        rotate([0,0,180])
+            strip(false);
+    }
+}
+
 print=!true;
 opentop=true;
 teac=true;
 sony=true;
 lid=true;
+strips=true;
 render_front=true;
 render_rear=true;
 render_top=true;
 render_bottom=true;
+
+explode_d=15;
 
 
 if (teac) {
@@ -455,13 +533,18 @@ if (teac) {
         print,
         render_front, render_rear,
         render_top, render_bottom,
-        opentop
+        opentop, explode_d
     );
 }
+
 if (sony) {
-    sony_everything(print, render_front, render_rear, opentop);
+    sony_everything(print, render_front, render_rear, opentop, explode_d);
 }
 
 if (lid) {
-    case_lid(print);
+    case_lid(print, explode_d);
+}
+
+if (strips) {
+    case_strips(print, explode_d);
 }
