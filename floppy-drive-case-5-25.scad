@@ -199,10 +199,10 @@ module teac_case(render_front, render_rear, opentop) {
                 cube([teac_w,teac_d_trunk+delta,wall+2*delta]);
             }
             if (!render_rear) {
-                translate([-delta, teac_holes_mid_d, 0-delta])
+                translate([-delta, teac_holes_mid_d-delta, 0-delta])
                     cube([
                         teac_w+2*wall+2*delta,
-                        teac_d-teac_holes_mid_d+wall+delta,
+                        teac_d-teac_holes_mid_d+wall+2*delta,
                         teac_h+2*wall+2*delta
                     ]);
             }
@@ -247,8 +247,10 @@ module teac_bottom(render_front, render_rear, opentop) {
                 + [2*wall+2*delta, wall+2*delta, wall+2*delta]);
     }
 
-    translate([0, 0, wall+teac_holes_center_h])
-    rails(rail_w, rail_h);
+    if (render_rear) {
+        translate([0, 0, wall+teac_holes_center_h])
+        rails(rail_w, rail_h);
+    }
 }
 
 module teac_everything(
@@ -402,10 +404,10 @@ module _sony_everything(print, render_front, render_rear, opentop) {
         translate([0,0,-3*rail_h])
         union() {
             if (!render_rear) {
-                translate([-delta, teac_holes_mid_d, 0-delta])
+                translate([-delta, teac_holes_mid_d-delta, 0-delta])
                     cube([
                         teac_w+2*wall+2*delta,
-                        teac_d-teac_holes_mid_d+wall+delta,
+                        teac_d-teac_holes_mid_d+wall+2*delta,
                         teac_h+2*wall+2*delta
                     ]);
             }
@@ -424,7 +426,7 @@ module _sony_everything(print, render_front, render_rear, opentop) {
 module sony_everything(print, render_front, render_rear, opentop, explode_d) {
     if (print) {
         rotate([0,180,90])
-        translate([print_separation/2, 0, -sony_h-wall])
+        translate([print_separation/2, print_separation/2, -sony_h-wall])
         union() {
             _sony_everything(print, render_front, false, opentop);
             translate([0, explode_d, 0])
@@ -532,7 +534,7 @@ module case_strips(print, explode_d) {
     }
 }
 
-print=!true;
+print=true;
 opentop=true;
 teac=true;
 sony=true;
