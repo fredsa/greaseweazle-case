@@ -263,8 +263,9 @@ module teac_everything(
             translate([0, 0, teac_h+2*wall])
             rotate([0, -180, -90])
             union() {
-                teac_top(render_front,render_rear,opentop);
-                //%drive();
+                teac_top(render_front, false, opentop);
+                translate([0, explode_d, 0])
+                    teac_top(false, render_rear, opentop);
             }
         }
 
@@ -272,17 +273,22 @@ module teac_everything(
             translate([-print_separation/2, 0, 0])
             rotate([0, 0, 90])
             union() {
-                teac_bottom(render_front, render_rear, opentop);
-                //%drive();
+                teac_bottom(render_front, false, opentop);
+                translate([0, explode_d, 0])
+                    teac_bottom(false, render_rear, opentop);
             }
         }
     } else {
         if (render_top) {
             translate([0, 0, explode_d])
-                teac_top(render_front, render_rear, opentop);
+                teac_top(render_front, false, opentop);
+            translate([0, explode_d, explode_d])
+                teac_top(false, render_rear, opentop);
         }
         if (render_bottom) {
-            teac_bottom(render_front, render_rear, opentop);
+            teac_bottom(render_front, false, opentop);
+            translate([0, explode_d, 0])
+                teac_bottom(false, render_rear, opentop);
         }
     }
 }
@@ -341,7 +347,7 @@ module sony_case_plain(opentop) {
                 cube([2*wall+teac_w, teac_d+wall, wall]);
         }        
 
-        // Remove interior.
+        // Remove.
         sony_drive_remove(opentop);
     }
 
@@ -419,11 +425,19 @@ module sony_everything(print, render_front, render_rear, opentop, explode_d) {
     if (print) {
         rotate([0,180,90])
         translate([print_separation/2, 0, -sony_h-wall])
-        _sony_everything(print, render_front, render_rear, opentop);
+        union() {
+            _sony_everything(print, render_front, false, opentop);
+            translate([0, explode_d, 0])
+                _sony_everything(print, false, render_rear, opentop);
+        }
     } else {
         translate([0, 0, 2*wall+teac_h])
-        translate([0, 0, 2*explode_d])
-            _sony_everything(print, render_front, render_rear, opentop);
+        union() {
+            translate([0, 0, 2*explode_d])
+                _sony_everything(print, render_front, false, opentop);
+            translate([0, explode_d, 2*explode_d])
+                _sony_everything(print, false, render_rear, opentop);
+        }
     }
 }
 
@@ -432,6 +446,7 @@ module case_lid(print, explode_d) {
         translate([0, -2*wall-teac_w-print_separation/2, 0])
         rotate([0,180,-90])
         union() {
+            translate([0, explode_d, 0])
             translate([0, teac_d-sony_d_trunk-wall, 0])
                 cube([2*wall+teac_w, sony_d_trunk+2*wall, wall]);
 
@@ -439,7 +454,7 @@ module case_lid(print, explode_d) {
         }
     } else {
         translate([0, 0, 3*wall+teac_h+sony_h])
-        translate([0, 0, 3*explode_d])
+        translate([0, explode_d, 3*explode_d])
         union() {
             translate([0, teac_d-sony_d_trunk-wall, 0])
                 cube([2*wall+teac_w, sony_d_trunk+2*wall, wall]);
@@ -502,15 +517,18 @@ module case_strips(print, explode_d) {
             strip(false);
 
     } else {
-        //Left.
-        translate([-strip_w-explode_d,teac_holes_rear_d-strip_d/2,0])
-            strip(false);
+        translate([0, explode_d, explode_d])
+        union() {
+            //Left.
+            translate([-strip_w-explode_d,teac_holes_rear_d-strip_d/2,0])
+                strip(false);
 
-        // Right.
-        translate([2*wall+teac_w+explode_d,teac_holes_rear_d-strip_d/2,0])
-        translate([strip_w, strip_d, 0])
-        rotate([0,0,180])
-            strip(false);
+            // Right.
+            translate([2*wall+teac_w+explode_d,teac_holes_rear_d-strip_d/2,0])
+            translate([strip_w, strip_d, 0])
+            rotate([0,0,180])
+                strip(false);
+        }
     }
 }
 
