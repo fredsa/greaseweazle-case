@@ -1,5 +1,5 @@
 $fn=20;
-delta = 0.01;
+delta = 0.05;
 print_separation = 10;
 
 wall = 3;
@@ -490,6 +490,10 @@ module _case_lidlid() {
 
 module case_lidlid(print, explode_d) {
     if (print) {
+        translate([-sony_d_trunk-explode_d, -2*wall-teac_w-print_separation/2, 0])
+        rotate([0,180,-90])
+        translate([0, explode_d, 0])
+            _case_lidlid();
     } else {
         translate([0,0,3*wall+teac_h+sony_h])
         translate([0, explode_d, 4*explode_d])
@@ -598,7 +602,7 @@ module case_strips(print, explode_d) {
     }
 }
 
-print=!true;
+print=true;
 opentop=true;
 teac=true;
 sony=true;
