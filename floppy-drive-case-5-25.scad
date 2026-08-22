@@ -78,7 +78,9 @@ rail_overlapgap_h=.6;
 lidlid_cable_d = 4;
 lidlid_cable_num_cables = 2;
 lidlid_w = (lidlid_cable_num_cables*2-1) * lidlid_cable_d + 2*wall + 2*rail_w + 2*rail_overlapgap_w;
+lidlid_w_overhang = 5;
 lidlid_d = 30;
+lidlid_d_overhang = 5;
 lid_lid_rail_margin = 2;
 lidlid_rail_l = lidlid_d/2 - lid_lid_rail_margin/2;
 
@@ -158,39 +160,39 @@ module rails(mount_w, w, rail_l, h) {
         cube([w+delta,rail_l+2*delta,h+delta]);
 }
 
-module rail_holders(rail_l, mount_w, sidemount) {
+module rail_holders(rail_l, mount_w, extra_h, sidemount, overlapgap_h) {
     difference() {
             translate([0, 0, -2*rail_h])
             union() {
                 // Left rail.
                 translate([wall, teac_d-rail_l, 0])
-                    cube([wall+rail_w+rail_overlapgap_w,rail_l,2*rail_h]);
+                    cube([wall+rail_w+rail_overlapgap_w,rail_l,2*rail_h+extra_h]);
 
                 // Right rail.
                 translate([mount_w-rail_w-rail_overlapgap_w, teac_d-rail_l, 0])
-                    cube([wall+rail_w+rail_overlapgap_w,rail_l,2*rail_h]);
+                    cube([wall+rail_w+rail_overlapgap_w,rail_l,2*rail_h+extra_h]);
 
                 if (sidemount) {
                     // Left rail.
                     translate([wall, teac_d-rail_l, 2*rail_h])
-                        cube([wall+rail_w+rail_overlapgap_w,rail_l,2*rail_h]);
+                        cube([wall+rail_w+rail_overlapgap_w,rail_l,2*rail_h+extra_h]);
 
                     // Right rail.
                     translate([mount_w-rail_w-rail_overlapgap_w, teac_d-rail_l, 2*rail_h])
-                        cube([wall+rail_w+rail_overlapgap_w,rail_l,2*rail_h]);
+                        cube([wall+rail_w+rail_overlapgap_w,rail_l,2*rail_h+extra_h]);
 
                 }
             }
 
             // Remove.
-            translate([-rail_overlapgap_w,0,0])
-                rails(mount_w, rail_w+rail_overlapgap_w, rail_l, rail_h+rail_overlapgap_h);
+            translate([-rail_overlapgap_w,0,extra_h])
+                rails(mount_w, rail_w+rail_overlapgap_w, rail_l, rail_h+overlapgap_h+extra_h);
     }
 }
 
 module teac_rail_holders() {
     translate([0, 0, wall+teac_holes_center_h])
-        rail_holders(teac_rail_l, teac_w, sidemount=true);
+        rail_holders(teac_rail_l, teac_w, 0, true, rail_overlapgap_h);
 }
 
 module teac_case(render_front, render_rear, opentop) {
@@ -366,7 +368,7 @@ module sony_case_plain(opentop) {
         rails(teac_w, rail_w, teac_rail_l, rail_h);
 
     // Rail holders.
-    rail_holders(teac_rail_l, teac_w, sidemount=true);
+    rail_holders(teac_rail_l, teac_w, 0, true, rail_overlapgap_h);
 }
 
 module sony_attachment_post(d) {
@@ -463,20 +465,20 @@ module lidlid_cable_hole(cable_d) {
     }
 }
 
-module plain_case_lidlid() {
-    translate([wall+teac_w/2-lidlid_w/2, teac_d-lidlid_d, -delta])
-        cube([lidlid_w, lidlid_d, wall+2*delta]);
+module plain_case_lidlid(w, d) {
+    translate([wall+teac_w/2-w/2, teac_d-d, -delta])
+        cube([w, d, wall+2*delta]);
 }
 
 module _case_lidlid() {
     difference() {
         union() {
             // Plain lidlid.
-            plain_case_lidlid();
+            plain_case_lidlid(lidlid_w+2*lidlid_w_overhang, lidlid_d+lidlid_d_overhang);
 
             // Rail holders.
-            translate([teac_w/2-lidlid_w/2,0,0])
-               rail_holders(lidlid_rail_l, lidlid_w, false);
+            translate([teac_w/2-lidlid_w/2,0,-wall])
+               rail_holders(lidlid_rail_l, lidlid_w, wall, false, 0);
         }
 
         // Remove left cable hole.
@@ -495,7 +497,7 @@ module case_lidlid(print, explode_d) {
         translate([0, explode_d, 0])
             _case_lidlid();
     } else {
-        translate([0,0,3*wall+teac_h+sony_h])
+        translate([0,0,4*wall+teac_h+sony_h])
         translate([0, explode_d, 4*explode_d])
             _case_lidlid();
     }
@@ -507,18 +509,21 @@ module _case_lid(print, explode_d, lidlid) {
             translate([0, teac_d-sony_d_trunk-wall, 0])
                 cube([2*wall+teac_w, sony_d_trunk+2*wall, wall]);
 
-            // Rails.
+            // Lidlid rails.
             translate([teac_w/2-lidlid_w/2,0,0])
                 rails(lidlid_w, rail_w, lidlid_rail_l, rail_h);
 
-            // Rail to lid attachment.
+            // Lidlid rail to lid attachment.
             translate([teac_w/2-lidlid_w/2-2*rail_w/2,0,0])
                 rails(lidlid_w+2*rail_w, rail_w, lidlid_rail_l, rail_h);
         }
 
         // Remove.
-        plain_case_lidlid();
+        plain_case_lidlid(lidlid_w, lidlid_d);
     }
+
+    // Lid rail holders.
+    rail_holders(teac_rail_l, teac_w, 0, false, rail_overlapgap_h);
 }
 
 module case_lid(print, explode_d, lidlid) {
@@ -602,7 +607,7 @@ module case_strips(print, explode_d) {
     }
 }
 
-print=true;
+print=!true;
 opentop=true;
 teac=true;
 sony=true;
